@@ -21,12 +21,14 @@ import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
 import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
 import at.nonblocking.maven.nonsnapshot.model.UpdatedUpstreamMavenArtifact;
+import com.google.common.io.Files;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -163,7 +165,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
               mavenModule.setDirty(true);
             }
           } else if (isIncrementVersion()) {
-            if (getScmHandler().checkChangesSinceLastUpdate(mavenModule.getPomFile().getParentFile())) {
+            if (getScmHandler().checkChangesSinceLastUpdate(getChangeScope(mavenModule))) {
               LOG.info("Module {}:{}: There were commits after last plugin increment. Assigning a new version.",
                       mavenModule.getGroupId(), mavenModule.getArtifactId());
               mavenModule.setDirty(true);
@@ -191,6 +193,17 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         }
       }
     }
+  }
+
+  private static File getChangeScope(MavenModule mavenModule) {
+    try {
+      if(Files.toString(mavenModule.getPomFile(), StandardCharsets.UTF_8).contains("<packaging>pom</packaging>")){
+        return mavenModule.getPomFile();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return mavenModule.getPomFile().getParentFile();
   }
 
   protected void updateUpstreamArtifacts(List<MavenModule> mavenModules) {
@@ -257,9 +270,13 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
             Matcher m = pattern.matcher(mavenModule.getVersion());
             if (m.matches()) {
               String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
-              LOG.info("setting new version " + new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString());
-              mavenModule.setNewVersion(
-                      new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString());
+              String newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
+              mavenModule.setNewVersion(newVersion);
+              LOG.info("{}:{}:{} -> {}", new Object[]{
+                      mavenModule.getGroupId(),
+                      mavenModule.getArtifactId(),
+                      mavenModule.getVersion(),
+                      newVersion});
             } else {
                 throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
             }
