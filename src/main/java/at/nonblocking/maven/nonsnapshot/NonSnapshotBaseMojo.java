@@ -151,7 +151,8 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = "false")
   private boolean incrementVersion;
 
-  @Parameter(defaultValue = "(?:[0-9]+.)*([0-9]+)(?:-.+)?")
+  private static final String DEFAULT_INCREMENT_VERSION_PATTERN = "(?:[0-9]+\\.)*([0-9]+)(?:-.+)?";
+  @Parameter(defaultValue = DEFAULT_INCREMENT_VERSION_PATTERN)
   private String incrementVersionPattern;
 
   private List<ProcessedUpstreamDependency> processedUpstreamDependencies;
