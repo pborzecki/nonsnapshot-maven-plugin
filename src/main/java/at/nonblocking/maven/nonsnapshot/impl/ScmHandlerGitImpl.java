@@ -26,7 +26,6 @@ import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +104,42 @@ public class ScmHandlerGitImpl implements ScmHandler {
     }
 
     return false;
+  }
+
+  @Override
+  public boolean checkChangesSinceLastUpdate(File moduleDirectory) {
+      if (this.git == null) {
+          return false;
+      }
+
+      try {
+          String modulePath = PathUtil.relativePath(this.baseDir, moduleDirectory);
+          LogCommand logCommand = this.git
+                  .log()
+                  .setMaxCount(1);
+
+          if (!modulePath.isEmpty()) {
+              logCommand.addPath(modulePath);
+          }
+
+          RevCommit commit = logCommand.call().iterator().next();
+          if (!commit.getFullMessage().startsWith(NONSNAPSHOT_COMMIT_MESSAGE_PREFIX)) {
+              LOG.info("Module folder {}: Last change requires revision update: rev{} @ {} ({})",
+                      new Object[]{
+                              moduleDirectory.getAbsolutePath(),
+                              commit.getId(),
+                              new Date(commit.getCommitTime() * 1000L),
+                              commit.getFullMessage()});
+              return true;
+          } else {
+              LOG.info("Module folder {}: Last change is version update, no needs in version update.",
+                      new Object[]{moduleDirectory.getAbsolutePath()});
+              return false;
+          }
+      } catch (Exception e) {
+          LOG.warn("Failed to check changes for path (assume changed): {}" + moduleDirectory.getAbsolutePath(), e);
+          return true;
+      }
   }
 
   @Override

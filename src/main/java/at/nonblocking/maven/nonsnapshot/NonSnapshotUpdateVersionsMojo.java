@@ -15,20 +15,10 @@
  */
 package at.nonblocking.maven.nonsnapshot;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotDependencyResolverException;
+import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
 import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
 import at.nonblocking.maven.nonsnapshot.model.UpdatedUpstreamMavenArtifact;
 import org.apache.maven.model.Model;
@@ -36,8 +26,14 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
-import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Main Goal of this Plugin. <br/>
@@ -166,6 +162,12 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
               LOG.info("Module {}:{}: Revision number is different from the revision number in the version qualifier. Assigning a new version.", mavenModule.getGroupId(), mavenModule.getArtifactId());
               mavenModule.setDirty(true);
             }
+          } else if (isIncrementVersion()) {
+            if (getScmHandler().checkChangesSinceLastUpdate(mavenModule.getPomFile().getParentFile())) {
+              LOG.info("Module {}:{}: There were commits after last plugin increment. Assigning a new version.",
+                      mavenModule.getGroupId(), mavenModule.getArtifactId());
+              mavenModule.setDirty(true);
+            }
           } else {
 
             //Default: compare timestamps
@@ -250,7 +252,18 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         if (!getScmHandler().isWorkingCopy(modulesPath)) {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
-        if (isUseSvnRevisionQualifier()) {
+        if (isIncrementVersion()){
+            Pattern pattern = Pattern.compile(getIncrementVersionPattern());
+            Matcher m = pattern.matcher(mavenModule.getVersion());
+            if (m.matches()) {
+              String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
+              LOG.info("setting new version " + new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString());
+              mavenModule.setNewVersion(
+                      new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString());
+            } else {
+                throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
+            }
+        } else if (isUseSvnRevisionQualifier()) {
           mavenModule.setNewVersion(getBaseVersion() + "-" + getScmHandler().getNextRevisionId(modulesPath));
         } else {
           mavenModule.setNewVersion(getBaseVersion() + "-" + this.timestamp);

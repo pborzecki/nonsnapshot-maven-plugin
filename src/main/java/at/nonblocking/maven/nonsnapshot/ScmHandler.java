@@ -56,6 +56,14 @@ public interface ScmHandler {
   boolean checkChangesSinceDate(File moduleDirectory, Date date);
 
   /**
+   * Check if there has been changes since last version up
+   *
+   * @param moduleDirectory File
+   * @return boolean
+   */
+  boolean checkChangesSinceLastUpdate(File moduleDirectory);
+
+  /**
    * Get the next revision number this path would get in case of a commit.
    * <br/>
    * Only supported by SVN (for all I know). Other implementations may throw NotImplementedExceptions.

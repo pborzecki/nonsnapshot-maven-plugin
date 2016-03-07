@@ -148,6 +148,12 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = "${project.remoteProjectRepositories}")
   private List<RemoteRepository> remoteRepositories;
 
+  @Parameter(defaultValue = "false")
+  private boolean incrementVersion;
+
+  @Parameter(defaultValue = "(?:[0-9]+.)*([0-9]+)(?:-.+)?")
+  private String incrementVersionPattern;
+
   private List<ProcessedUpstreamDependency> processedUpstreamDependencies;
 
   private ScmHandler scmHandler;
@@ -403,6 +409,22 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setPlexusContainer(PlexusContainer plexusContainer) {
     this.plexusContainer = plexusContainer;
+  }
+
+  public boolean isIncrementVersion() {
+    return incrementVersion;
+  }
+
+  public void setIncrementVersion(boolean incrementVersion) {
+    this.incrementVersion = incrementVersion;
+  }
+
+  public String getIncrementVersionPattern() {
+    return incrementVersionPattern;
+  }
+
+  public void setIncrementVersionPattern(String incrementVersionPattern) {
+    this.incrementVersionPattern = incrementVersionPattern;
   }
 }
 

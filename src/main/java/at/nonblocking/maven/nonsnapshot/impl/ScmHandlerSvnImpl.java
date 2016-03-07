@@ -127,6 +127,11 @@ public class ScmHandlerSvnImpl implements ScmHandler {
   }
 
   @Override
+  public boolean checkChangesSinceLastUpdate(File moduleDirectory) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public String getNextRevisionId(File path) {
     if (this.cachedNextRevision == null) {
       try {
