@@ -148,17 +148,12 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           qualifierString = versionParts[versionParts.length - 1];
         }
 
-        if (qualifierString == null) {
-          LOG.info("Invalid qualifier string found for artifact {}:{}: {}. Assigning a new version.",
-              new Object[]{mavenModule.getGroupId(), mavenModule.getArtifactId(), mavenModule.getVersion()});
-          mavenModule.setDirty(true);
-
-        } else if (qualifierString.equals("SNAPSHOT")) {
+        if (qualifierString != null && qualifierString.equals("SNAPSHOT")) {
           LOG.info("Snapshot version found for artifact {}:{}. Assigning a new version.", mavenModule.getGroupId(), mavenModule.getArtifactId());
           mavenModule.setDirty(true);
 
         } else {
-          if (getScmType() == SCM_TYPE.SVN && isUseSvnRevisionQualifier()) {
+          if (qualifierString != null && getScmType() == SCM_TYPE.SVN && isUseSvnRevisionQualifier()) {
             boolean changes = getScmHandler().checkChangesSinceRevision(mavenModule.getPomFile().getParentFile(), qualifierString);
             if (changes) {
               LOG.info("Module {}:{}: Revision number is different from the revision number in the version qualifier. Assigning a new version.", mavenModule.getGroupId(), mavenModule.getArtifactId());
