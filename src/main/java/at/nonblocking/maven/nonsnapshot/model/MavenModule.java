@@ -110,4 +110,9 @@ public class MavenModule extends MavenArtifact {
   public void setNewVersion(String newVersion) {
     this.newVersion = newVersion;
   }
+
+  @Override
+  public String toString() {
+    return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
+  }
 }
