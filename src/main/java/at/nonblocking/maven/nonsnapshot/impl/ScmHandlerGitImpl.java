@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -206,6 +207,19 @@ public class ScmHandlerGitImpl implements ScmHandler {
     } catch (Exception e) {
       LOG.error("Project seems not be within a GIT repository!", e);
     }
+  }
+
+  @Override
+  public String getBranchName() {
+    try {
+      String branch = git.getRepository().getBranch();
+      if (!branch.equals("master")) {
+        return branch;
+      }
+    } catch (IOException e) {
+      LOG.error("Error during getting branch name", e);
+    }
+    return null;
   }
 
   private File findGitRepo(File baseDir) {

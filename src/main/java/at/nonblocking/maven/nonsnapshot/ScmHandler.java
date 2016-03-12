@@ -91,4 +91,5 @@ public interface ScmHandler {
    */
   void init(File baseDir, String scmUser, String scmPassword, Properties properties);
 
+  String getBranchName();
 }

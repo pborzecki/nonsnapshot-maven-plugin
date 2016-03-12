@@ -181,4 +181,9 @@ public class ScmHandlerSvnImpl implements ScmHandler {
     this.svnClientManager.setAuthenticationManager(authManager);
   }
 
+  @Override
+  public String getBranchName() {
+    return null;
+  }
+
 }

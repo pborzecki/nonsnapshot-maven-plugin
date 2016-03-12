@@ -260,21 +260,34 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         if (!getScmHandler().isWorkingCopy(modulesPath)) {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
-        if (isIncrementVersion()){
+        if (isIncrementVersion()) {
+          String newVersion;
+          String branch = getScmHandler().getBranchName();
+          if (branch != null) {
+            Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
+            Matcher m = pattern.matcher(mavenModule.getVersion());
+            if (m.matches()) {
+              String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
+              newVersion = m.group(1) + "-" + branch + "-" + next;
+            } else {
+              newVersion = mavenModule.getVersion() + "-" + branch + "-1";
+            }
+          } else {
             Pattern pattern = Pattern.compile(getIncrementVersionPattern());
             Matcher m = pattern.matcher(mavenModule.getVersion());
             if (m.matches()) {
               String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
-              String newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
-              mavenModule.setNewVersion(newVersion);
-              LOG.info("{}:{}:{} -> {}", new Object[]{
-                      mavenModule.getGroupId(),
-                      mavenModule.getArtifactId(),
-                      mavenModule.getVersion(),
-                      newVersion});
+              newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
             } else {
-                throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
+              throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
             }
+          }
+          mavenModule.setNewVersion(newVersion);
+          LOG.info("{}:{}:{} -> {}", new Object[]{
+                  mavenModule.getGroupId(),
+                  mavenModule.getArtifactId(),
+                  mavenModule.getVersion(),
+                  newVersion});
         } else if (isUseSvnRevisionQualifier()) {
           mavenModule.setNewVersion(getBaseVersion() + "-" + getScmHandler().getNextRevisionId(modulesPath));
         } else {
