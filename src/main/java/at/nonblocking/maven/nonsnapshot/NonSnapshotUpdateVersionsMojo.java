@@ -262,7 +262,10 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         }
         if (isIncrementVersion()) {
           String newVersion;
-          String branch = getScmHandler().getBranchName();
+          String branch = System.getenv("NONSNAPSHOT_CURRENT_BRANCH");
+          if (branch == null) {
+            branch = getScmHandler().getBranchName();
+          }
           if (branch != null) {
             Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
             Matcher m = pattern.matcher(mavenModule.getVersion());
