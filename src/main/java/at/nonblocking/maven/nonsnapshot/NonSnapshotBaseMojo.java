@@ -155,8 +155,17 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = DEFAULT_INCREMENT_VERSION_PATTERN)
   private String incrementVersionPattern;
 
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue = "false", property = "nonsnapshot.appendBranchNameToVersion")
   private boolean appendBranchNameToVersion;
+
+  @Parameter(property = "nonsnapshot.branchName")
+  private String branchName;
+
+  /**
+   * Replace special symbols (like "/", etc) in new <version> by this string.
+   */
+  @Parameter(defaultValue = "-")
+  private String replaceSpecialSymbolsInVersionBy;
 
   private List<ProcessedUpstreamDependency> processedUpstreamDependencies;
 
@@ -437,6 +446,22 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setAppendBranchNameToVersion(boolean appendBranchNameToVersion) {
     this.appendBranchNameToVersion = appendBranchNameToVersion;
+  }
+
+  public String getReplaceSpecialSymbolsInVersionBy() {
+    return replaceSpecialSymbolsInVersionBy;
+  }
+
+  public void setReplaceSpecialSymbolsInVersionBy(String replaceSpecialSymbolsInVersionBy) {
+    this.replaceSpecialSymbolsInVersionBy = replaceSpecialSymbolsInVersionBy;
+  }
+
+  public String getBranchName() {
+    return branchName;
+  }
+
+  public void setBranchName(String branchName) {
+    this.branchName = branchName;
   }
 }
 

@@ -267,9 +267,12 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           String branch = null;
           if (isAppendBranchNameToVersion()) {
             branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
-          }
-          if (branch == null) {
-            branch = getScmHandler().getBranchName();
+            if (branch == null) {
+              branch = getBranchName();
+            }
+            if (branch == null || branch.isEmpty()) {
+              branch = getScmHandler().getBranchName();
+            }
           }
           if (branch != null) {
             Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
@@ -290,6 +293,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
               throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
             }
           }
+          newVersion = newVersion.replaceAll("/", getReplaceSpecialSymbolsInVersionBy());
           mavenModule.setNewVersion(newVersion);
           LOG.info("{}:{}:{} -> {}", new Object[]{
                   mavenModule.getGroupId(),

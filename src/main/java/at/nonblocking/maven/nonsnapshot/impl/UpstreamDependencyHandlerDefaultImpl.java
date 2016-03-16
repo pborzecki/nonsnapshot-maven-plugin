@@ -126,6 +126,9 @@ public class UpstreamDependencyHandlerDefaultImpl implements UpstreamDependencyH
                                      List<RemoteRepository> remoteRepositories) throws NonSnapshotDependencyResolverException {
 
     String currentVersion = mavenArtifact.getVersion();
+    if (currentVersion == null) {
+      throw new IllegalArgumentException("Empty version in " + mavenArtifact);
+    }
     if (currentVersion.contains("$")) {
       currentVersion = "0.0.0";
     } else if (currentVersion.endsWith("-SNAPSHOT")) {

@@ -56,4 +56,8 @@ public class MavenArtifact {
     this.version = version;
   }
 
+  @Override
+  public String toString() {
+      return groupId + ":" + artifactId + ":" + version;
+  }
 }
