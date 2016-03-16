@@ -155,6 +155,9 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = DEFAULT_INCREMENT_VERSION_PATTERN)
   private String incrementVersionPattern;
 
+  @Parameter(defaultValue = "false")
+  private boolean appendBranchNameToVersion;
+
   private List<ProcessedUpstreamDependency> processedUpstreamDependencies;
 
   private ScmHandler scmHandler;
@@ -426,6 +429,14 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setIncrementVersionPattern(String incrementVersionPattern) {
     this.incrementVersionPattern = incrementVersionPattern;
+  }
+
+  public boolean isAppendBranchNameToVersion() {
+    return appendBranchNameToVersion;
+  }
+
+  public void setAppendBranchNameToVersion(boolean appendBranchNameToVersion) {
+    this.appendBranchNameToVersion = appendBranchNameToVersion;
   }
 }
 

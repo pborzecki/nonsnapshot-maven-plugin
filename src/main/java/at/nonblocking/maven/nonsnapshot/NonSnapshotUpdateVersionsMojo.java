@@ -55,6 +55,8 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
 
   private static String LINE_SEPARATOR = System.getProperty("line.separator");
 
+  private static final String NONSNAPSHOT_CURRENT_BRANCH = "NONSNAPSHOT_CURRENT_BRANCH";
+
   private String timestamp;
 
   @Override
@@ -262,7 +264,10 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         }
         if (isIncrementVersion()) {
           String newVersion;
-          String branch = System.getenv("NONSNAPSHOT_CURRENT_BRANCH");
+          String branch = null;
+          if (isAppendBranchNameToVersion()) {
+            branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
+          }
           if (branch == null) {
             branch = getScmHandler().getBranchName();
           }
