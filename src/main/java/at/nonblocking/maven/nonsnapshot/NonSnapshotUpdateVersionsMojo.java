@@ -148,7 +148,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
       message.append(module.getArtifactId()).append("-").append(module.getNewVersion()).append("\n");
     }
     return ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of " + modules.size() + " artifacts updated\n\n"
-            + "New modules:\n" + message;
+            + "New versions:\n" + message;
   }
 
   protected void markDirtyWhenRevisionChangedOrInvalidQualifier(List<MavenModule> mavenModules) {
