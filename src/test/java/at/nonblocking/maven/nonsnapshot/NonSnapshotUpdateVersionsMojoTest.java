@@ -132,7 +132,8 @@ public class NonSnapshotUpdateVersionsMojoTest {
     inOrder.verify(this.mockMavenPomHandler, times(1)).updateArtifact(wsArtifact4);
     inOrder.verify(this.mockMavenPomHandler, times(1)).updateArtifact(wsArtifact5);
 
-    inOrder.verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom3, pom4, pom5), ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of 4 artifacts updated");
+    inOrder.verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom3, pom4, pom5),
+            NonSnapshotUpdateVersionsMojo.messageFormat(Arrays.asList(wsArtifact1, wsArtifact3, wsArtifact4, wsArtifact5)));
   }
 
   @Test
@@ -210,7 +211,8 @@ public class NonSnapshotUpdateVersionsMojoTest {
     inOrder.verify(this.mockMavenPomHandler, times(1)).updateArtifact(wsArtifact4);
     inOrder.verify(this.mockMavenPomHandler, times(1)).updateArtifact(wsArtifact5);
 
-    inOrder.verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom3, pom4, pom5), ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of 4 artifacts updated");
+    inOrder.verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom3, pom4, pom5),
+            NonSnapshotUpdateVersionsMojo.messageFormat(Arrays.asList(wsArtifact1, wsArtifact3, wsArtifact4, wsArtifact5)));
   }
 
   @Test

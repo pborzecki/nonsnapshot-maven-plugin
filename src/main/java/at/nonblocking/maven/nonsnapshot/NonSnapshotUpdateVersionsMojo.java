@@ -27,7 +27,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,6 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Main Goal of this Plugin. <br/>
@@ -101,36 +107,48 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
     return mavenModules;
   }
 
-  protected void writeAndCommitArtifacts(List<MavenModule> mavenModules) {
-    List<File> pomsToCommit = new ArrayList<>();
+    protected void writeAndCommitArtifacts(List<MavenModule> mavenModules) {
+        List<File> pomsToCommit = new ArrayList<>();
+        List<MavenModule> modulesToCommit = new ArrayList<>();
 
-    for (MavenModule mavenModule : mavenModules) {
-      if (mavenModule.isDirty() && mavenModule.getNewVersion() != null) {
-        getMavenPomHandler().updateArtifact(mavenModule);
-        LOG.debug("Add module to dirty registry list: {}", mavenModule.getPomFile().getAbsolutePath());
-        pomsToCommit.add(mavenModule.getPomFile());
-      }
+        for (MavenModule mavenModule : mavenModules) {
+            if (mavenModule.isDirty() && mavenModule.getNewVersion() != null) {
+                getMavenPomHandler().updateArtifact(mavenModule);
+                LOG.debug("Add module to dirty registry list: {}", mavenModule.getPomFile().getAbsolutePath());
+                pomsToCommit.add(mavenModule.getPomFile());
+                modulesToCommit.add(mavenModule);
+            }
+        }
+
+        if (isGenerateChangedProjectsPropertyFile()) {
+            generateChangedProjectsPropertyFile(pomsToCommit);
+        }
+
+        if (pomsToCommit.size() > 0) {
+            writeDirtyModulesRegistry(pomsToCommit);
+            if (isGenerateIncrementalBuildScripts()) {
+                generateIncrementalBuildScripts(pomsToCommit);
+            }
+
+            if (!isDeferPomCommit()) {
+                LOG.info("Committing {} POM files", pomsToCommit.size());
+                String message = messageFormat(modulesToCommit);
+                getScmHandler().commitFiles(pomsToCommit, message);
+            } else {
+                LOG.info("Deferring the POM commit. Execute nonsnapshot:commit to actually commit the changes.");
+            }
+        } else {
+            LOG.info("Modules are up-to-date. No versions updated.");
+        }
     }
 
-    if (isGenerateChangedProjectsPropertyFile()) {
-      generateChangedProjectsPropertyFile(pomsToCommit);
+  static String messageFormat(List<MavenModule> modules) {
+    StringBuilder message = new StringBuilder();
+    for (MavenModule module : modules) {
+      message.append(module.getArtifactId()).append("-").append(module.getNewVersion()).append("\n");
     }
-
-    if (pomsToCommit.size() > 0) {
-      writeDirtyModulesRegistry(pomsToCommit);
-      if (isGenerateIncrementalBuildScripts()) {
-        generateIncrementalBuildScripts(pomsToCommit);
-      }
-
-      if (!isDeferPomCommit()) {
-        LOG.info("Committing {} POM files", pomsToCommit.size());
-        getScmHandler().commitFiles(pomsToCommit, ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of " + pomsToCommit.size() + " artifacts updated");
-      } else {
-        LOG.info("Deferring the POM commit. Execute nonsnapshot:commit to actually commit the changes.");
-      }
-    } else {
-      LOG.info("Modules are up-to-date. No versions updated.");
-    }
+    return ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of " + modules.size() + " artifacts updated\n\n"
+            + "New modules:\n" + message;
   }
 
   protected void markDirtyWhenRevisionChangedOrInvalidQualifier(List<MavenModule> mavenModules) {
