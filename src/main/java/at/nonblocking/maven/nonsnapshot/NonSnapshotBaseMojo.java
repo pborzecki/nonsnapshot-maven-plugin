@@ -88,9 +88,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = "${project}")
   private MavenProject mavenProject;
 
-  @Parameter(required = true)
-  private String baseVersion;
-
   @Parameter(defaultValue = DEFAULT_TIMESTAMP_QUALIFIER_PATTERN)
   private String timestampQualifierPattern = DEFAULT_TIMESTAMP_QUALIFIER_PATTERN;
 
@@ -252,14 +249,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setMavenProject(MavenProject mavenProject) {
     this.mavenProject = mavenProject;
-  }
-
-  public String getBaseVersion() {
-    return baseVersion;
-  }
-
-  public void setBaseVersion(String baseVersion) {
-    this.baseVersion = baseVersion;
   }
 
   public String getTimestampQualifierPattern() {
