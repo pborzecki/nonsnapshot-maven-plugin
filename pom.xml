@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.4</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.slf4j-maven-plugin-log</groupId>
@@ -70,7 +70,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.5.1</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<source>1.8</source>
@@ -80,7 +80,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.4</version>
 				<configuration>
 					<goalPrefix>nonsnapshot</goalPrefix>
 					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
@@ -97,7 +97,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<id>source-jar</id>
@@ -110,7 +110,7 @@
 			<plugin>
 		        <groupId>org.codehaus.plexus</groupId>
 		        <artifactId>plexus-component-metadata</artifactId>
-		        <version>1.5.5</version>
+		        <version>1.6</version>
 		        <executions>
 		          <execution>
 		            <id>process-classes</id>
