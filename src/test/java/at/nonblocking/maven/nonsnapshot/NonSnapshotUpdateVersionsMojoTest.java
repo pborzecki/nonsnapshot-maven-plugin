@@ -164,7 +164,6 @@ public class NonSnapshotUpdateVersionsMojoTest {
     when(this.mockMavenPomHandler.readArtifact(model1)).thenReturn(wsArtifact1);
 
     //when(this.mockScmHandler.getRevisionId(pom1.getParentFile())).thenReturn("1333");
-    when(this.mockScmHandler.getNextRevisionId(pom1.getParentFile())).thenReturn("1444");
     when(this.mockScmHandler.isWorkingCopy(any(File.class))).thenReturn(true);
 
     this.nonSnapshotMojo.execute();

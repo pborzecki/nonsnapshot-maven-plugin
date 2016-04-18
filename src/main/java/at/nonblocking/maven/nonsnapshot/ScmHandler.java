@@ -64,16 +64,6 @@ public interface ScmHandler {
   boolean checkChangesSinceLastUpdate(File moduleDirectory);
 
   /**
-   * Get the next revision number this path would get in case of a commit.
-   * <br/>
-   * Only supported by SVN (for all I know). Other implementations may throw NotImplementedExceptions.
-   *
-   * @param path File
-   * @return String
-   */
-  String getNextRevisionId(File path);
-
-  /**
    * Commit the given path to the remote repository.
    *
    * @param files         List<File>

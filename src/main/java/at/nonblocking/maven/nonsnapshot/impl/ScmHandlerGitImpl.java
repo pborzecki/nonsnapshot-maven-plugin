@@ -144,11 +144,6 @@ public class ScmHandlerGitImpl implements ScmHandler {
   }
 
   @Override
-  public String getNextRevisionId(File path) {
-    throw new RuntimeException("Operation getNextRevisionId() not supported by the GIT handler");
-  }
-
-  @Override
   public void commitFiles(List<File> files, String commitMessage) {
     LOG.debug("Committing files: {}", files);
 
