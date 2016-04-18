@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
+import at.nonblocking.maven.nonsnapshot.impl.ScmHandlerGitImpl;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,7 +28,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.PlexusContainer;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
@@ -37,8 +37,6 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
-
-import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
 
 /**
  * Base class for NonSnapshot Plugin Mojos.
@@ -192,19 +190,7 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   private void postProcessParameters() {
     if (this.scmHandler == null) {
-      LOG.debug("Lookup for ScmHandler implementation of type: {}", this.scmType);
-
-      try {
-        this.scmHandler = this.plexusContainer.lookup(ScmHandler.class, this.scmType.name());
-      } catch (ComponentLookupException e) {
-        throw new NonSnapshotPluginException("Unable to instantiate ScmHandler class for type: " + this.scmType, e);
-      }
-
-      if (this.scmHandler == null) {
-        throw new NonSnapshotPluginException("Unable to instantiate ScmHandler class for type: " + this.scmType);
-      }
-
-      LOG.debug("Found ScmHandler: {}", this.scmHandler.getClass());
+        this.scmHandler = new ScmHandlerGitImpl();
     }
 
     Properties properties = new Properties();
