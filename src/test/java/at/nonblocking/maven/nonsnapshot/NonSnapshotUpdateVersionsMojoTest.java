@@ -1,29 +1,36 @@
 package at.nonblocking.maven.nonsnapshot;
 
-import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.Profile;
+import org.apache.maven.project.MavenProject;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.InOrder;
+import org.slf4j.impl.StaticLoggerBinder;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
-import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
-import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Profile;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.slf4j.impl.StaticLoggerBinder;
-
-import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class NonSnapshotUpdateVersionsMojoTest {
 
@@ -102,7 +109,6 @@ public class NonSnapshotUpdateVersionsMojoTest {
 
     when(this.mockScmHandler.isWorkingCopy(any(File.class))).thenReturn(true);
 
-    this.nonSnapshotMojo.setUseSvnRevisionQualifier(false);
     this.nonSnapshotMojo.setTimestampQualifierPattern(pattern);
     this.nonSnapshotMojo.execute();
 

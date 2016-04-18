@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Main Goal of this Plugin. <br/>
@@ -312,8 +311,6 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
                   mavenModule.getArtifactId(),
                   mavenModule.getVersion(),
                   newVersion});
-        } else if (isUseSvnRevisionQualifier()) {
-          mavenModule.setNewVersion(getBaseVersion() + "-" + getScmHandler().getNextRevisionId(modulesPath));
         } else {
           mavenModule.setNewVersion(getBaseVersion() + "-" + this.timestamp);
         }
