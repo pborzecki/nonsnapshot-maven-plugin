@@ -173,13 +173,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           mavenModule.setDirty(true);
 
         } else {
-          if (qualifierString != null && getScmType() == SCM_TYPE.SVN && isUseSvnRevisionQualifier()) {
-            boolean changes = getScmHandler().checkChangesSinceRevision(mavenModule.getPomFile().getParentFile(), qualifierString);
-            if (changes) {
-              LOG.info("Module {}:{}: Revision number is different from the revision number in the version qualifier. Assigning a new version.", mavenModule.getGroupId(), mavenModule.getArtifactId());
-              mavenModule.setDirty(true);
-            }
-          } else if (isIncrementVersion()) {
+          if (isIncrementVersion()) {
             if (getScmHandler().checkChangesSinceLastUpdate(getChangeScope(mavenModule))) {
               LOG.info("Module {}:{}: There were commits after last plugin increment. Assigning a new version.",
                       mavenModule.getGroupId(), mavenModule.getArtifactId());
