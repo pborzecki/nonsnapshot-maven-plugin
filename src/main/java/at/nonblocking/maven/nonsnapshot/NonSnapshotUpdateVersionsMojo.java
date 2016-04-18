@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -172,31 +171,10 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           mavenModule.setDirty(true);
 
         } else {
-          if (isIncrementVersion()) {
-            if (getScmHandler().checkChangesSinceLastUpdate(getChangeScope(mavenModule))) {
-              LOG.info("Module {}:{}: There were commits after last plugin increment. Assigning a new version.",
-                      mavenModule.getGroupId(), mavenModule.getArtifactId());
-              mavenModule.setDirty(true);
-            }
-          } else {
-
-            //Default: compare timestamps
-
-            boolean changes;
-
-            try {
-              Date versionTimestamp = new SimpleDateFormat(getTimestampQualifierPattern()).parse(qualifierString);
-              changes = getScmHandler().checkChangesSinceDate(mavenModule.getPomFile().getParentFile(), versionTimestamp);
-            } catch (ParseException e) {
-              LOG.debug("Module {}:{}: Invalid timestamp qualifier: {}",
-                  new Object[]{mavenModule.getGroupId(), mavenModule.getArtifactId(), qualifierString});
-              changes = true;
-            }
-
-            if (changes) {
-              LOG.info("Module {}:{}: There were commits after the timestamp in the version qualifier. Assigning a new version.", mavenModule.getGroupId(), mavenModule.getArtifactId());
-              mavenModule.setDirty(true);
-            }
+          if (getScmHandler().checkChangesSinceLastUpdate(getChangeScope(mavenModule))) {
+            LOG.info("Module {}:{}: There were commits after last plugin increment. Assigning a new version.",
+                    mavenModule.getGroupId(), mavenModule.getArtifactId());
+            mavenModule.setDirty(true);
           }
         }
       }
@@ -273,47 +251,43 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         if (!getScmHandler().isWorkingCopy(modulesPath)) {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
-        if (isIncrementVersion()) {
-          String newVersion;
-          String branch = null;
-          if (isAppendBranchNameToVersion()) {
-            branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
-            if (branch == null) {
-              branch = getBranchName();
-            }
-            if (branch == null || branch.isEmpty()) {
-              branch = getScmHandler().getBranchName();
-            }
+        String newVersion;
+        String branch = null;
+        if (isAppendBranchNameToVersion()) {
+          branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
+          if (branch == null) {
+            branch = getBranchName();
           }
-          if (branch != null) {
-            Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
-            Matcher m = pattern.matcher(mavenModule.getVersion());
-            if (m.matches()) {
-              String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
-              newVersion = m.group(1) + "-" + branch + "-" + next;
-            } else {
-              newVersion = mavenModule.getVersion() + "-" + branch + "-1";
-            }
-          } else {
-            Pattern pattern = Pattern.compile(getIncrementVersionPattern());
-            Matcher m = pattern.matcher(mavenModule.getVersion());
-            if (m.matches()) {
-              String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
-              newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
-            } else {
-              throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
-            }
+          if (branch == null || branch.isEmpty()) {
+            branch = getScmHandler().getBranchName();
           }
-          newVersion = newVersion.replaceAll("/", getReplaceSpecialSymbolsInVersionBy());
-          mavenModule.setNewVersion(newVersion);
-          LOG.info("{}:{}:{} -> {}", new Object[]{
-                  mavenModule.getGroupId(),
-                  mavenModule.getArtifactId(),
-                  mavenModule.getVersion(),
-                  newVersion});
-        } else {
-          mavenModule.setNewVersion(getBaseVersion() + "-" + this.timestamp);
         }
+        if (branch != null) {
+          Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
+          Matcher m = pattern.matcher(mavenModule.getVersion());
+          if (m.matches()) {
+            String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
+            newVersion = m.group(1) + "-" + branch + "-" + next;
+          } else {
+            newVersion = mavenModule.getVersion() + "-" + branch + "-1";
+          }
+        } else {
+          Pattern pattern = Pattern.compile(getIncrementVersionPattern());
+          Matcher m = pattern.matcher(mavenModule.getVersion());
+          if (m.matches()) {
+            String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
+            newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
+          } else {
+            throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
+          }
+        }
+        newVersion = newVersion.replaceAll("/", getReplaceSpecialSymbolsInVersionBy());
+        mavenModule.setNewVersion(newVersion);
+        LOG.info("{}:{}:{} -> {}", new Object[]{
+                mavenModule.getGroupId(),
+                mavenModule.getArtifactId(),
+                mavenModule.getVersion(),
+                newVersion});
       }
     }
   }

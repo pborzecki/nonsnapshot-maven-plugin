@@ -15,10 +15,6 @@
  */
 package at.nonblocking.maven.nonsnapshot;
 
-import java.io.File;
-import java.util.List;
-import java.util.Properties;
-
 import at.nonblocking.maven.nonsnapshot.impl.ScmHandlerGitImpl;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,6 +33,10 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
+
+import java.io.File;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Base class for NonSnapshot Plugin Mojos.
@@ -136,9 +136,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   @Parameter(defaultValue = "${project.remoteProjectRepositories}")
   private List<RemoteRepository> remoteRepositories;
-
-  @Parameter(defaultValue = "false")
-  private boolean incrementVersion;
 
   private static final String DEFAULT_INCREMENT_VERSION_PATTERN = "(?:[0-9]+\\.)*([0-9]+)(?:-.+)?";
   @Parameter(defaultValue = DEFAULT_INCREMENT_VERSION_PATTERN)
@@ -383,14 +380,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setPlexusContainer(PlexusContainer plexusContainer) {
     this.plexusContainer = plexusContainer;
-  }
-
-  public boolean isIncrementVersion() {
-    return incrementVersion;
-  }
-
-  public void setIncrementVersion(boolean incrementVersion) {
-    this.incrementVersion = incrementVersion;
   }
 
   public String getIncrementVersionPattern() {
