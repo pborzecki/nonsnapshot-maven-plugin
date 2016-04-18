@@ -11,7 +11,6 @@
 
 	<properties>
 		<maven.version>3.1.1</maven.version>
-		<jgit.version>3.5.2.201411120430-r</jgit.version>
 	</properties>
 
 	<dependencies>
@@ -49,7 +48,7 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>${jgit.version}</version>
+			<version>4.3.0.201604071810-r</version>
 		</dependency>
 
 		<!-- Test -->
