@@ -53,12 +53,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   protected static final String DIRTY_MODULES_REGISTRY_FILE = "nonSnapshotDirtyModules.txt";
 
   /**
-   * The SCM (Source Code Management System) type
-   */
-  @Parameter(defaultValue = "SVN")
-  private SCM_TYPE scmType;
-
-  /**
    * SCM Username
    */
   @Parameter
@@ -208,14 +202,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Override
   public void contextualize(Context context) throws ContextException {
     this.plexusContainer = (PlexusContainer) context.get(PlexusConstants.PLEXUS_KEY);
-  }
-
-  public SCM_TYPE getScmType() {
-    return scmType;
-  }
-
-  public void setScmType(SCM_TYPE scmType) {
-    this.scmType = scmType;
   }
 
   public String getScmUser() {
