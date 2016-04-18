@@ -95,12 +95,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   private List<String> upstreamDependencies;
 
   /**
-   * Generate a shell script to incrementally build only dirty artifacts (Maven > 3.2.1 only)
-   */
-  @Parameter(defaultValue = "false")
-  private boolean generateIncrementalBuildScripts;
-
-  /**
    * Generate a property file with a property for all changed projects,
    * which can be used in jenkins for an incremental build (mvn --project ${NONSNAPSHOT_CHANGED_PROJECTS}).
    */
@@ -265,14 +259,6 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setUpstreamDependencies(List<String> upstreamDependencies) {
     this.upstreamDependencies = upstreamDependencies;
-  }
-
-  public boolean isGenerateIncrementalBuildScripts() {
-    return generateIncrementalBuildScripts;
-  }
-
-  public void setGenerateIncrementalBuildScripts(boolean generateIncrementalBuildScripts) {
-    this.generateIncrementalBuildScripts = generateIncrementalBuildScripts;
   }
 
   public boolean isGenerateChangedProjectsPropertyFile() {
