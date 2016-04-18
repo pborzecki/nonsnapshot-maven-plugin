@@ -30,7 +30,7 @@ The algorithm works as follows:
 8. Commit all changed pom.xml files to SCM. This step can be deferred and done by a second goal.
 
 The generated artifact versions consist of a "base version", which can be configured,
-and the build timestamp or revision id (SVN only) as a qualifier. Examples:
+and the build timestamp as a qualifier. Examples:
 
 * 1.2.3-20141125
 * 1.2.3-123456
@@ -49,11 +49,8 @@ The plugin can be added to a separate (POM-) project or your main aggregator pro
 			<version>2.0.9</version>
 			<configuration>
 				<baseVersion>1.2.3</baseVersion>
-				<scmType>SVN</scmType>
-				<!-- <scmType>GIT</scmType> -->
 				<scmUser>${scmUser}</scmUser>
 				<scmPassword>${scmPassword}</scmPassword>
-				<useSvnRevisionQualifier>true</useSvnRevisionQualifier>
 				<deferPomCommit>true</deferPomCommit>
 				<generateIncrementalBuildScripts>true</generateIncrementalBuildScripts>
 				<generateChangedProjectsPropertyFile>true</generateChangedProjectsPropertyFile>
@@ -82,7 +79,6 @@ The plugin can be added to a separate (POM-) project or your main aggregator pro
 
 ### Notes
 
-* Supported SCM systems are SVN and GIT, default is SVN.
 * By the default timestamps are used as qualifiers
 * *generateIncrementalBuildScripts* creates shell script for an incremental build using the new *--projects* option
   to filter aggregate projects (Maven > 3.2.1 only)
