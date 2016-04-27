@@ -11,42 +11,35 @@ import java.util.regex.Pattern;
  * @author Yablokov Aleksey
  */
 class NewVersionResolver {
-    private static final String NONSNAPSHOT_CURRENT_BRANCH = "NONSNAPSHOT_CURRENT_BRANCH";
     private final boolean appendBranchNameToVersion;
-    private final String branchName;
-    private final ScmHandler scmHandler;
     private final String incrementVersionPattern;
     private final String replaceSpecialSymbolsInVersionBy;
 
-    NewVersionResolver(boolean appendBranchNameToVersion, String branchName, ScmHandler scmHandler, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
+    NewVersionResolver(boolean appendBranchNameToVersion, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
         this.appendBranchNameToVersion = appendBranchNameToVersion;
-        this.branchName = branchName;
-        this.scmHandler = scmHandler;
         this.incrementVersionPattern = incrementVersionPattern;
         this.replaceSpecialSymbolsInVersionBy = replaceSpecialSymbolsInVersionBy;
     }
 
-    String resolveNewVersion(String currVersion) {
-        String newVersion;
-        String branch = null;
-        if (appendBranchNameToVersion) {
-            branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
-            if (branch == null) {
-                branch = branchName;
-            }
-            if (branch == null || branch.isEmpty()) {
-                branch = scmHandler.getBranchName();
-            }
+    String resolveNewVersion(String currVersion, String branchName) {
+        if (currVersion == null) {
+            throw new IllegalArgumentException("Current version is null");
         }
-        if (branch != null) {
-            Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
+        if (branchName == null || branchName.isEmpty()) {
+            throw new IllegalArgumentException("Branch name is null");
+        }
+
+        String newVersion;
+        if (appendBranchNameToVersion) {
+            Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branchName) + "-(\\d+)");
             Matcher m = pattern.matcher(currVersion);
             if (m.matches()) {
                 String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
-                newVersion = m.group(1) + "-" + branch + "-" + next;
+                newVersion = m.group(1) + "-" + branchName + "-" + next;
             } else {
-                newVersion = currVersion + "-" + branch + "-1";
+                newVersion = currVersion + "-" + branchName + "-1";
             }
+            newVersion = replaceSpecialSymbols(newVersion);
         } else {
             Pattern pattern = Pattern.compile(incrementVersionPattern);
             Matcher m = pattern.matcher(currVersion);
@@ -57,6 +50,10 @@ class NewVersionResolver {
                 throw new NonSnapshotPluginException("Unsupported version format " + currVersion);
             }
         }
+        return newVersion;
+    }
+
+    private String replaceSpecialSymbols(String newVersion) {
         newVersion = newVersion.replaceAll("/", replaceSpecialSymbolsInVersionBy);
         return newVersion;
     }

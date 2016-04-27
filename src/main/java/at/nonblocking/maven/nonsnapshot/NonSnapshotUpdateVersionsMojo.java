@@ -54,8 +54,8 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
   private static Logger LOG = LoggerFactory.getLogger(NonSnapshotUpdateVersionsMojo.class);
 
   private static String LINE_SEPARATOR = System.getProperty("line.separator");
-  private final NewVersionResolver resolver = new NewVersionResolver(isAppendBranchNameToVersion(), getBranchName(),
-          getScmHandler(), getIncrementVersionPattern(), getReplaceSpecialSymbolsInVersionBy());
+  private final NewVersionResolver resolver = new NewVersionResolver(isAppendBranchNameToVersion(),
+          getIncrementVersionPattern(), getReplaceSpecialSymbolsInVersionBy());
 
   @Override
   protected void internalExecute() {
@@ -235,7 +235,8 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         if (!getScmHandler().isWorkingCopy(modulesPath)) {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
-        String newVersion = resolver.resolveNewVersion(mavenModule.getVersion());
+        String branch = getBranchName() != null ? getBranchName() : getScmHandler().getBranchName();
+        String newVersion = resolver.resolveNewVersion(mavenModule.getVersion(), branch);
         mavenModule.setNewVersion(newVersion);
         LOG.info("{}:{}:{} -> {}", new Object[]{
                 mavenModule.getGroupId(),
