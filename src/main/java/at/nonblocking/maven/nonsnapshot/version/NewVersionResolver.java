@@ -1,22 +1,22 @@
-package at.nonblocking.maven.nonsnapshot;
+package at.nonblocking.maven.nonsnapshot.version;
 
 /**
  * Form string with new version of module.
  *
  * @author Yablokov Aleksey
  */
-class NewVersionResolver {
+public class NewVersionResolver {
     private final boolean appendBranchNameToVersion;
     private final String replaceSpecialSymbolsInVersionBy;
     private final VersionParser parser;
 
-    NewVersionResolver(boolean appendBranchNameToVersion, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
+    public NewVersionResolver(boolean appendBranchNameToVersion, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
         this.appendBranchNameToVersion = appendBranchNameToVersion;
         this.parser = new VersionParser(incrementVersionPattern);
         this.replaceSpecialSymbolsInVersionBy = replaceSpecialSymbolsInVersionBy;
     }
 
-    String resolveNewVersion(String currVersion, String branchName) {
+    public String resolveNewVersion(String currVersion, String branchName) {
         if (currVersion == null) {
             throw new IllegalArgumentException("Current version is null");
         }

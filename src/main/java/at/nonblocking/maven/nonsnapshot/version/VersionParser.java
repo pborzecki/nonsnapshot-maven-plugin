@@ -1,4 +1,4 @@
-package at.nonblocking.maven.nonsnapshot;
+package at.nonblocking.maven.nonsnapshot.version;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

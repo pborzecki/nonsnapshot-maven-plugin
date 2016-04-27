@@ -1,9 +1,10 @@
-package at.nonblocking.maven.nonsnapshot;
+package at.nonblocking.maven.nonsnapshot.version;
 
+import at.nonblocking.maven.nonsnapshot.version.VersionParser;
 import org.junit.Test;
 
-import static at.nonblocking.maven.nonsnapshot.VersionFormatter.formatWithBranch;
-import static at.nonblocking.maven.nonsnapshot.VersionFormatter.formatWithoutBranch;
+import static at.nonblocking.maven.nonsnapshot.version.VersionFormatter.formatWithBranch;
+import static at.nonblocking.maven.nonsnapshot.version.VersionFormatter.formatWithoutBranch;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 

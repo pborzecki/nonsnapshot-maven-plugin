@@ -1,8 +1,8 @@
-package at.nonblocking.maven.nonsnapshot;
+package at.nonblocking.maven.nonsnapshot.version;
 
 import org.junit.Test;
 
-import static at.nonblocking.maven.nonsnapshot.NonSnapshotBaseMojo.DEFAULT_INCREMENT_VERSION_PATTERN;
+import static at.nonblocking.maven.nonsnapshot.Constants.DEFAULT_INCREMENT_VERSION_PATTERN;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 

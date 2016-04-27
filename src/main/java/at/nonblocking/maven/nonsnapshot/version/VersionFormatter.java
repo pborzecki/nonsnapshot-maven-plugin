@@ -1,4 +1,4 @@
-package at.nonblocking.maven.nonsnapshot;
+package at.nonblocking.maven.nonsnapshot.version;
 
 /**
  * @author Yablokov Aleksey

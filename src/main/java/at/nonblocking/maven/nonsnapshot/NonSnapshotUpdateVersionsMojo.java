@@ -21,6 +21,7 @@ import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
 import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
 import at.nonblocking.maven.nonsnapshot.model.UpdatedUpstreamMavenArtifact;
+import at.nonblocking.maven.nonsnapshot.version.NewVersionResolver;
 import com.google.common.io.Files;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugins.annotations.Mojo;
