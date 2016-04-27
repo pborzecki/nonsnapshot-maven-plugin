@@ -27,7 +27,7 @@ public class VersionParserTest {
         assertVersionEquals(parser.parse("1.2.3-pks-1234-bnu-integration-5"), 1, 2, 3, "pks-1234-bnu-integration", 5);
     }
 
-    private static void assertVersionEquals(VersionParser.Version actual, int major, int middle, int minor, String branch, Integer build) {
+    static void assertVersionEquals(VersionParser.Version actual, int major, int middle, int minor, String branch, Integer build) {
         assertThat(actual.getMajorVersion(), equalTo(major));
         assertThat(actual.getMiddleVersion(), equalTo(middle));
         assertThat(actual.getMinorVersion(), equalTo(minor));

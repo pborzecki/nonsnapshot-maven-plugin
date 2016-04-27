@@ -2,6 +2,8 @@ package at.nonblocking.maven.nonsnapshot;
 
 import org.junit.Test;
 
+import static at.nonblocking.maven.nonsnapshot.VersionFormatter.formatWithBranch;
+import static at.nonblocking.maven.nonsnapshot.VersionFormatter.formatWithoutBranch;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -15,16 +17,16 @@ public class VersionFormatterTest {
 
     @Test
     public void withBranch() {
-        assertThat(VersionFormatter.formatWithBranch(noBranch), equalTo("1.2.3"));
-        assertThat(VersionFormatter.formatWithBranch(easyBranch), equalTo("1.2.3-master-4"));
-        assertThat(VersionFormatter.formatWithBranch(hardBranch), equalTo("1.2.3-pks-1234-bnu-integration-5-4"));
+        assertThat(formatWithBranch(noBranch), equalTo("1.2.3"));
+        assertThat(formatWithBranch(easyBranch), equalTo("1.2.3-master-4"));
+        assertThat(formatWithBranch(hardBranch), equalTo("1.2.3-pks-1234-bnu-integration-5-4"));
     }
 
     @Test
     public void withoutBranch() {
-        assertThat(VersionFormatter.formatWithoutBranch(noBranch), equalTo("1.2.3"));
-        assertThat(VersionFormatter.formatWithoutBranch(easyBranch), equalTo("1.2.3"));
-        assertThat(VersionFormatter.formatWithoutBranch(hardBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(noBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(easyBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(hardBranch), equalTo("1.2.3"));
     }
 
 }
