@@ -20,13 +20,13 @@ public class NewVersionResolver {
         if (currVersion == null) {
             throw new IllegalArgumentException("Current version is null");
         }
-        if (branchName == null || branchName.isEmpty()) {
-            throw new IllegalArgumentException("Branch name is null");
-        }
 
         String newVersion;
         VersionParser.Version currV = parser.parse(currVersion);
         if (appendBranchNameToVersion) {
+            if (branchName == null || branchName.isEmpty()) {
+                throw new IllegalArgumentException("Branch name is null");
+            }
             VersionParser.Version newV = VersionIncrementer.incrementBuildVersion(currV, branchName);
             newVersion = VersionFormatter.formatWithBranch(newV);
             newVersion = replaceSpecialSymbols(newVersion);
