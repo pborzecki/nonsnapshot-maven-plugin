@@ -44,6 +44,15 @@ class VersionParser {
             this.minorVersion = minorVersion;
             this.branchSuffix = branchSuffix;
             this.buildVersion = buildVersion;
+            if (branchSuffix != null && branchSuffix.isEmpty()) {
+                throw new IllegalArgumentException("Branch suffix is an empty string");
+            }
+            if (branchSuffix != null && buildVersion == null) {
+                throw new IllegalArgumentException("Branch suffix is not null, but build version is null");
+            }
+            if (branchSuffix == null && buildVersion != null) {
+                throw new IllegalArgumentException("Build version is not null, but branch suffix is null");
+            }
         }
 
         public int getMajorVersion() {
