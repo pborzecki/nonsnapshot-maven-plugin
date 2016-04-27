@@ -121,7 +121,7 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = "${project.remoteProjectRepositories}")
   private List<RemoteRepository> remoteRepositories;
 
-  static final String DEFAULT_INCREMENT_VERSION_PATTERN = "(?:[0-9]+\\.)*([0-9]+)(?:-.+)?";
+  static final String DEFAULT_INCREMENT_VERSION_PATTERN = "(\\d+)\\.(\\d+)\\.(\\d+)(-(\\w[\\w-]*)-(\\d+))?";
   @Parameter(defaultValue = DEFAULT_INCREMENT_VERSION_PATTERN)
   private String incrementVersionPattern;
 
