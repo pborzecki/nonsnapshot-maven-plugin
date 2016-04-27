@@ -1,5 +1,9 @@
 package at.nonblocking.maven.nonsnapshot.version;
 
+import static at.nonblocking.maven.nonsnapshot.version.VersionIncrementer.incrementBuildVersion;
+import static at.nonblocking.maven.nonsnapshot.version.VersionIncrementer.incrementMinorVersion;
+import static at.nonblocking.maven.nonsnapshot.version.VersionIncrementer.removeBranchName;
+
 /**
  * Form string with new version of module.
  *
@@ -27,11 +31,11 @@ public class NewVersionResolver {
             if (branchName == null || branchName.isEmpty()) {
                 throw new IllegalArgumentException("Branch name is null");
             }
-            VersionParser.Version newV = VersionIncrementer.incrementBuildVersion(currV, branchName);
+            VersionParser.Version newV = incrementBuildVersion(currV, branchName);
             newVersion = VersionFormatter.formatWithBranch(newV);
             newVersion = replaceSpecialSymbols(newVersion);
         } else {
-            VersionParser.Version newV = VersionIncrementer.incrementMinorVersion(currV);
+            VersionParser.Version newV = incrementMinorVersion(removeBranchName(currV));
             newVersion = VersionFormatter.formatWithBranch(newV);
         }
         return newVersion;

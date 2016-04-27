@@ -15,6 +15,16 @@ class VersionIncrementer {
         );
     }
 
+    static VersionParser.Version removeBranchName(VersionParser.Version version) {
+        return new VersionParser.Version(
+                version.getMajorVersion(),
+                version.getMiddleVersion(),
+                version.getMinorVersion(),
+                null,
+                null
+        );
+    }
+
     static VersionParser.Version incrementBuildVersion(VersionParser.Version version, String branchName) {
         if (version.getBuildVersion() != null) {
             return new VersionParser.Version(
