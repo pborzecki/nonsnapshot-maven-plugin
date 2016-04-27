@@ -237,37 +237,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
         if (!getScmHandler().isWorkingCopy(modulesPath)) {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
-        String newVersion;
-        String branch = null;
-        if (isAppendBranchNameToVersion()) {
-          branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
-          if (branch == null) {
-            branch = getBranchName();
-          }
-          if (branch == null || branch.isEmpty()) {
-            branch = getScmHandler().getBranchName();
-          }
-        }
-        if (branch != null) {
-          Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
-          Matcher m = pattern.matcher(mavenModule.getVersion());
-          if (m.matches()) {
-            String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
-            newVersion = m.group(1) + "-" + branch + "-" + next;
-          } else {
-            newVersion = mavenModule.getVersion() + "-" + branch + "-1";
-          }
-        } else {
-          Pattern pattern = Pattern.compile(getIncrementVersionPattern());
-          Matcher m = pattern.matcher(mavenModule.getVersion());
-          if (m.matches()) {
-            String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
-            newVersion = new StringBuilder(mavenModule.getVersion()).replace(m.start(1), m.end(1), next).toString();
-          } else {
-            throw new NonSnapshotPluginException("Unsupported version format " + mavenModule.getVersion());
-          }
-        }
-        newVersion = newVersion.replaceAll("/", getReplaceSpecialSymbolsInVersionBy());
+        String newVersion = resolveNewVersion(mavenModule.getVersion());
         mavenModule.setNewVersion(newVersion);
         LOG.info("{}:{}:{} -> {}", new Object[]{
                 mavenModule.getGroupId(),
@@ -276,6 +246,41 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
                 newVersion});
       }
     }
+  }
+
+  private String resolveNewVersion(String currVersion) {
+    String newVersion;
+    String branch = null;
+    if (isAppendBranchNameToVersion()) {
+      branch = System.getenv(NONSNAPSHOT_CURRENT_BRANCH);
+      if (branch == null) {
+        branch = getBranchName();
+      }
+      if (branch == null || branch.isEmpty()) {
+        branch = getScmHandler().getBranchName();
+      }
+    }
+    if (branch != null) {
+      Pattern pattern = Pattern.compile("(.+)-" + Pattern.quote(branch) + "-(\\d+)");
+      Matcher m = pattern.matcher(currVersion);
+      if (m.matches()) {
+        String next = Integer.toString(Integer.parseInt(m.group(2)) + 1);
+        newVersion = m.group(1) + "-" + branch + "-" + next;
+      } else {
+        newVersion = currVersion + "-" + branch + "-1";
+      }
+    } else {
+      Pattern pattern = Pattern.compile(getIncrementVersionPattern());
+      Matcher m = pattern.matcher(currVersion);
+      if (m.matches()) {
+        String next = Integer.toString(Integer.parseInt(m.group(1)) + 1);
+        newVersion = new StringBuilder(currVersion).replace(m.start(1), m.end(1), next).toString();
+      } else {
+        throw new NonSnapshotPluginException("Unsupported version format " + currVersion);
+      }
+    }
+    newVersion = newVersion.replaceAll("/", getReplaceSpecialSymbolsInVersionBy());
+    return newVersion;
   }
 
   private void writeDirtyModulesRegistry(List<File> pomFileList) {
