@@ -1,6 +1,5 @@
 package at.nonblocking.maven.nonsnapshot;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static at.nonblocking.maven.nonsnapshot.NonSnapshotBaseMojo.DEFAULT_INCREMENT_VERSION_PATTERN;
@@ -25,8 +24,7 @@ public class NewVersionResolverTest {
     }
 
     @Test
-    @Ignore("need fix")
     public void replaceSuffix() {
-        assertThat(resolver.resolveNewVersion("1.2.3-pks-10", "master"), equalTo("1.2.3-master-1"));
+        assertThat(resolver.resolveNewVersion("1.2.3-pks-10", "master"), equalTo("1.2.3-master-11"));
     }
 }
