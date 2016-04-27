@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.yaal.maven</groupId>
 	<artifactId>nonsnapshot-maven-plugin</artifactId>
-	<version>3.8</version>
+	<version>4.0</version>
 	<packaging>maven-plugin</packaging>
 	<name>Maven Nonsnapshot Plugin</name>
 
