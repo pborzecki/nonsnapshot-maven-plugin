@@ -1,141 +1,146 @@
 <?xml version="1.0"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>ru.yaal.maven</groupId>
-	<artifactId>nonsnapshot-maven-plugin</artifactId>
-	<version>4.0</version>
-	<packaging>maven-plugin</packaging>
-	<name>Maven Nonsnapshot Plugin</name>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.novomatic.novoprime.3rdparty</groupId>
+    <artifactId>nonsnapshot-maven-plugin</artifactId>
+    <version>0-SNAPSHOT</version>
+    <packaging>maven-plugin</packaging>
+    <name>Maven Nonsnapshot Plugin</name>
 
-	<properties>
+    <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.version>3.3.9</maven.version>
-	</properties>
+        <maven.version>3.3.9</maven.version>
+    </properties>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-			<version>${maven.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-core</artifactId>
-			<version>${maven.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven.plugin-tools</groupId>
-			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.4</version>
-			<scope>provided</scope>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.4</version>
+            <scope>provided</scope>
+        </dependency>
 
-		<!-- Logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.slf4j-maven-plugin-log</groupId>
-			<artifactId>slf4j-maven-plugin-log</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.slf4j-maven-plugin-log</groupId>
+            <artifactId>slf4j-maven-plugin-log</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
-		<!-- GIT support -->
-		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit</artifactId>
-			<version>4.3.0.201604071810-r</version>
-		</dependency>
+        <!-- GIT support -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>4.3.0.201604071810-r</version>
+        </dependency>
 
-		<!-- Test -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<version>1.10.19</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <!-- Test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-					<source>1.8</source>
-					<target>1.8</target>
-					<compilerArgument>-proc:none</compilerArgument>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.4</version>
-				<configuration>
-					<goalPrefix>nonsnapshot</goalPrefix>
-					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-				</configuration>
-				<executions>
-					<execution>
-						<id>mojo-descriptor</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>descriptor</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>source-jar</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-		        <groupId>org.codehaus.plexus</groupId>
-		        <artifactId>plexus-component-metadata</artifactId>
-		        <version>1.6</version>
-		        <executions>
-		          <execution>
-		            <id>process-classes</id>
-		            <goals>
-		              <goal>generate-metadata</goal>
-		            </goals>
-		          </execution>
-		          <execution>
-		            <id>process-test-classes</id>
-		            <goals>
-		              <goal>generate-test-metadata</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		      </plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.4</version>
+                <configuration>
+                    <goalPrefix>nonsnapshot</goalPrefix>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>mojo-descriptor</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>source-jar</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>1.6</version>
+                <executions>
+                  <execution>
+                    <id>process-classes</id>
+                    <goals>
+                      <goal>generate-metadata</goal>
+                    </goals>
+                  </execution>
+                  <execution>
+                    <id>process-test-classes</id>
+                    <goals>
+                      <goal>generate-test-metadata</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
+        </plugins>
+    </build>
 
-	<!-- todo set distributionManagement in settings.xml-->
-	<distributionManagement>
-		<repository>
-			<id>nexus-thirdparty</id>
-			<url>http://nexus.trs/nexus/content/repositories/thirdparty/</url>
-		</repository>
-	</distributionManagement>
+    <distributionManagement>
+        <repository>
+            <id>lb-component-releases</id>
+            <name>LightBridge Component Releases</name>
+            <url>http://${nexus.address}/content/repositories/lb-component-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>lb-component-snapshots</id>
+            <name>LightBridge Component Snapshots</name>
+            <url>http://${nexus.address}/content/repositories/lb-component-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
