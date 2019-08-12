@@ -16,6 +16,8 @@
 package at.nonblocking.maven.nonsnapshot;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.io.File;
 
 import org.apache.maven.plugins.annotations.Mojo;
 import org.slf4j.Logger;
@@ -35,11 +37,19 @@ public class NonSnapshotPretendMojo extends NonSnapshotUpdateVersionsMojo {
 
   @Override
   protected void writeAndCommitArtifacts(List<MavenModule> mavenModules) {
+    List<File> pomsToCommit = new ArrayList<>();
     int dirtyCount = 0;
+
     for (MavenModule mavenModule : mavenModules) {
-      if (mavenModule.isDirty()) {
+      if (mavenModule.isDirty() && mavenModule.getNewVersion() != null) {
         dirtyCount++;
+        LOG.debug("Add module to dirty registry list: {}", mavenModule.getPomFile().getAbsolutePath());
+        pomsToCommit.add(mavenModule.getPomFile());
       }
+    }
+
+    if (isGenerateChangedProjectsPropertyFile()) {
+      generateChangedProjectsPropertyFile(pomsToCommit);
     }
 
     LOG.info("Artifacts in Workspace: {}, thereof about to be updated: {}", mavenModules.size(), dirtyCount);
