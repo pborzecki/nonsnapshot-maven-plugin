@@ -1,6 +1,8 @@
 package at.nonblocking.maven.nonsnapshot;
 
 import at.nonblocking.maven.nonsnapshot.impl.ModuleTraverserDefaultImpl;
+import at.nonblocking.maven.nonsnapshot.ResourcesToolkit;
+
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Profile;
 import org.apache.maven.project.MavenProject;
@@ -14,10 +16,12 @@ import java.util.List;
 
 public class ModuleTraverserDefaultImplTest {
 
+  private final String project1Pom = new String("testworkspace/project1/pom.xml");
+
   @Test
   public void readModulesNoProfilesTest() {
     MavenProject mavenProject = new MavenProject();
-    mavenProject.setFile(new File("src/test/resources/testworkspace/project1/pom.xml"));
+    mavenProject.setFile(new File(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), project1Pom)));
 
     ModuleTraverser moduleTraverser = new ModuleTraverserDefaultImpl();
 
@@ -35,7 +39,7 @@ public class ModuleTraverserDefaultImplTest {
   @Test
   public void readModulesInProfilesTest() {
     MavenProject mavenProject = new MavenProject();
-    mavenProject.setFile(new File("src/test/resources/testworkspace/project1/pom.xml"));
+    mavenProject.setFile(new File(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), project1Pom)));
 
     ModuleTraverser moduleTraverser = new ModuleTraverserDefaultImpl();
 

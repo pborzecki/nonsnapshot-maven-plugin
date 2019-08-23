@@ -16,8 +16,13 @@ import org.slf4j.impl.StaticLoggerBinder;
 
 import at.nonblocking.maven.nonsnapshot.impl.MavenPomHandlerDefaultImpl;
 import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import at.nonblocking.maven.nonsnapshot.ResourcesToolkit;
 
 public class MavenPomHandlerDefaultImplTest {
+
+  private final String testPom = new String("test-pom.xml");
+  private final String testPomParent = new String("test-pom-parent.xml");
+  private final String testPomNoVersion = new String("test-pom-noversion.xml");
 
   @BeforeClass
   public static void setupLog() {
@@ -26,8 +31,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadArtifact() throws Exception {
-    File pomFile = new File("target/test-pom.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPom));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPom)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
@@ -52,8 +57,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadArtifactWithParent() throws Exception {
-    File pomFile = new File("target/test-pom-parent.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom-parent.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPomParent));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPomParent)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
@@ -71,8 +76,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadAndUpdateArtifact() throws Exception {
-    File pomFile = new File("target/test-pom.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPom));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPom)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
@@ -97,8 +102,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadAndUpdateArtifactWithParent() throws Exception {
-    File pomFile = new File("target/test-pom-parent.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom-parent.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPomParent));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPomParent)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
@@ -123,8 +128,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadAndUpdateArtifactWithNoVersion() throws Exception {
-    File pomFile = new File("target/test-pom-noversion.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom-noversion.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPomNoVersion));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPomNoVersion)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
@@ -145,8 +150,8 @@ public class MavenPomHandlerDefaultImplTest {
 
   @Test
   public void testReadAndUpdateArtifactInsertVersionTag() throws Exception {
-    File pomFile = new File("target/test-pom.xml");
-    IOUtil.copy(new FileReader("src/test/resources/test-pom.xml"), new FileOutputStream(pomFile));
+    File pomFile = new File(ResourcesToolkit.GetPathToResourceInTarget(testPom));
+    IOUtil.copy(new FileReader(ResourcesToolkit.GetPathToResourceInResourcesDir(getClass(), testPom)), new FileOutputStream(pomFile));
 
     MavenPomHandler pomHandler = new MavenPomHandlerDefaultImpl();
 
