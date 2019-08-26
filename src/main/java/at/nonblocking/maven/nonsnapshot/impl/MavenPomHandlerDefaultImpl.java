@@ -15,25 +15,13 @@
  */
 package at.nonblocking.maven.nonsnapshot.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import at.nonblocking.maven.nonsnapshot.MavenPomHandler;
+import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
+import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
 import at.nonblocking.maven.nonsnapshot.model.UpdatedUpstreamMavenArtifact;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.model.InputLocation;
-import org.apache.maven.model.InputLocationTracker;
-import org.apache.maven.model.InputSource;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.model.Profile;
+import org.apache.maven.model.*;
 import org.apache.maven.model.io.xpp3.MavenXpp3ReaderEx;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.IOUtil;
@@ -42,11 +30,11 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import at.nonblocking.maven.nonsnapshot.MavenPomHandler;
-import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
-import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
-import at.nonblocking.maven.nonsnapshot.model.MavenModule;
-import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of {@link MavenPomHandler}
@@ -158,6 +146,18 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
                 new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
           }
         }
+      }
+    }
+
+    // DependencyManagement Dependencies
+    LOG.info("Looking for dependencies management section in {}:{}", model.getGroupId(), model.getArtifactId());
+    DependencyManagement dependencyManagement = model.getDependencyManagement();
+    if(dependencyManagement != null) {
+      LOG.info("Processing dependencies management section in {}:{}", model.getGroupId(), model.getArtifactId());
+      for (Dependency dependency : dependencyManagement.getDependencies()) {
+        mavenModule.getDependencies().add(new MavenModuleDependency(
+                getVersionLocation(dependency),
+                new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
       }
     }
 
