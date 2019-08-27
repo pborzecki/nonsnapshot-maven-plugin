@@ -16,6 +16,7 @@
 package at.nonblocking.maven.nonsnapshot;
 
 import at.nonblocking.maven.nonsnapshot.impl.ScmHandlerGitImpl;
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -386,6 +388,28 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setBranchName(String branchName) {
     this.branchName = branchName;
+  }
+
+  public String getCommitMessageUsingChangedMavenModules(List<MavenModule> changedMavenModules) {
+    StringBuilder message = new StringBuilder();
+    for (MavenModule changedMavenModule : changedMavenModules) {
+      message.append(" - ").append(changedMavenModule.getArtifactId()).append("-");
+      if(changedMavenModule.getNewVersion() != null)
+        message.append(changedMavenModule.getNewVersion()).append("\n");
+      else
+        message.append(changedMavenModule.getVersion()).append("\n");
+    }
+    return ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of " + changedMavenModules.size() + " artifacts updated\n\n"
+            + "Changes:\n" + message;
+  }
+
+  public String getCommitMessageUsingChangedPomFiles(List<File> changedPomFiles) {
+    List<MavenModule> changedMavenModules = new ArrayList<>();
+    for (File changedPomFile : changedPomFiles) {
+      MavenModule mavenModule = getMavenPomHandler().readArtifact(changedPomFile);
+      changedMavenModules.add(mavenModule);
+    }
+    return getCommitMessageUsingChangedMavenModules(changedMavenModules);
   }
 }
 
