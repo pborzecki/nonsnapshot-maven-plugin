@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,8 @@ public class NonSnapshotCommitMojo extends NonSnapshotBaseMojo {
 
     try {
       LOG.info("Committing {} POM files", pomsToCommit.size());
-      getScmHandler().commitFiles(pomsToCommit, "Nonsnapshot Plugin: Version of " + pomsToCommit.size() + " modules updated");
+      String message = getCommitMessageUsingChangedPomFiles(pomsToCommit);
+      getScmHandler().commitFiles(pomsToCommit, message);
     } catch (RuntimeException e) {
       if (isDontFailOnCommit()) {
         LOG.warn("Error occurred during commit, ignoring it since dontFailOnCommit=true.", e);

@@ -117,7 +117,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
             writeDirtyModulesRegistry(pomsToCommit);
             if (!isDeferPomCommit()) {
                 LOG.info("Committing {} POM files", pomsToCommit.size());
-                String message = messageFormat(modulesToCommit);
+                String message = getCommitMessageUsingChangedMavenModules(modulesToCommit);
                 getScmHandler().commitFiles(pomsToCommit, message);
             } else {
                 LOG.info("Deferring the POM commit. Execute nonsnapshot:commit to actually commit the changes.");
@@ -126,15 +126,6 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
             LOG.info("Modules are up-to-date. No versions updated.");
         }
     }
-
-  static String messageFormat(List<MavenModule> modules) {
-    StringBuilder message = new StringBuilder();
-    for (MavenModule module : modules) {
-      message.append(module.getArtifactId()).append("-").append(module.getNewVersion()).append("\n");
-    }
-    return ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX + " Version of " + modules.size() + " artifacts updated\n\n"
-            + "New versions:\n" + message;
-  }
 
   protected void markDirtyWhenRevisionChangedOrInvalidQualifier(List<MavenModule> mavenModules) {
     for (MavenModule mavenModule : mavenModules) {

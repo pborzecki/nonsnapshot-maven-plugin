@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -58,9 +59,20 @@ public class NonSnapshotCommitMojoTest {
     writer.write("../test3" + System.getProperty("line.separator"));
     writer.close();
 
+    when(this.mockMavenPomHandler.readArtifact(pom1)).thenReturn(new MavenModule(pom1, "at.nonblocking.tests", "test-all", "1.2.3"));
+    when(this.mockMavenPomHandler.readArtifact(pom2)).thenReturn(new MavenModule(pom1, "at.nonblocking.tests", "test1", "1.1.1"));
+    when(this.mockMavenPomHandler.readArtifact(pom3)).thenReturn(new MavenModule(pom3, "at.nonblocking.tests", "test2", "2.2.2"));
+    when(this.mockMavenPomHandler.readArtifact(pom4)).thenReturn(new MavenModule(pom4, "at.nonblocking", "test3", "3.3.3"));
+
     this.nonSnapshotMojo.execute();
 
-    verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom2, pom3, pom4), "Nonsnapshot Plugin: Version of 4 modules updated");
+    StringBuilder expectedMessageBuilder = new StringBuilder();
+    expectedMessageBuilder.append(ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX).append(" Version of 4 artifacts updated\n\nChanges:\n");
+    expectedMessageBuilder.append(" - ").append("test-all").append("-").append("1.2.3").append("\n");
+    expectedMessageBuilder.append(" - ").append("test1").append("-").append("1.1.1").append("\n");
+    expectedMessageBuilder.append(" - ").append("test2").append("-").append("2.2.2").append("\n");
+    expectedMessageBuilder.append(" - ").append("test3").append("-").append("3.3.3").append("\n");
+    verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom2, pom3, pom4), expectedMessageBuilder.toString());
 
     assertFalse(pomFilesToCommit.exists());
   }
@@ -79,9 +91,18 @@ public class NonSnapshotCommitMojoTest {
     writer.write("test2" + System.getProperty("line.separator"));
     writer.close();
 
+    when(this.mockMavenPomHandler.readArtifact(pom1)).thenReturn(new MavenModule(pom1, "at.nonblocking.tests", "test1", "1.1.1"));
+    when(this.mockMavenPomHandler.readArtifact(pom2)).thenReturn(new MavenModule(pom2, "at.nonblocking.tests", "test2", "2.2.2"));
+    when(this.mockMavenPomHandler.readArtifact(pom3)).thenReturn(new MavenModule(pom3, "at.nonblocking.tests", "test3", "3.3.3"));
+
     this.nonSnapshotMojo.execute();
 
-    verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom2, pom3), "Nonsnapshot Plugin: Version of 3 modules updated");
+    StringBuilder expectedMessageBuilder = new StringBuilder();
+    expectedMessageBuilder.append(ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX).append(" Version of 3 artifacts updated\n\nChanges:\n");
+    expectedMessageBuilder.append(" - ").append("test1").append("-").append("1.1.1").append("\n");
+    expectedMessageBuilder.append(" - ").append("test2").append("-").append("2.2.2").append("\n");
+    expectedMessageBuilder.append(" - ").append("test3").append("-").append("3.3.3").append("\n");
+    verify(this.mockScmHandler).commitFiles(Arrays.asList(pom1, pom2, pom3), expectedMessageBuilder.toString());
 
     assertFalse(pomFilesToCommit.exists());
   }
@@ -89,32 +110,40 @@ public class NonSnapshotCommitMojoTest {
   @Test
   public void testDontFailOnCommitTrue() throws Exception {
     File pomFilesToCommit = new File("target/nonSnapshotDirtyModules.txt");
-    File pom1 = new File("target/test1/pom.xml");
+    File pom1 = new File("target/test1/pom.xml").getAbsoluteFile();
 
     PrintWriter writer = new PrintWriter(pomFilesToCommit);
-    writer.write(pom1.getPath() + System.getProperty("line.separator"));
+    writer.write("test1" + System.getProperty("line.separator"));
     writer.close();
 
-    doThrow(new RuntimeException("test")).when(this.mockScmHandler).commitFiles(anyList(), eq("Nonsnapshot Plugin: Version of 1 artifacts updated"));
+    when(this.mockMavenPomHandler.readArtifact(pom1)).thenReturn(new MavenModule(pom1, "at.nonblocking.tests", "test1", "1.1.1"));
+
+    StringBuilder expectedMessageBuilder = new StringBuilder();
+    expectedMessageBuilder.append(ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX).append(" Version of 1 artifacts updated\n\nChanges:\n");
+    expectedMessageBuilder.append(" - ").append("test1").append("-").append("1.1.1").append("\n");
+    doThrow(new RuntimeException("test")).when(this.mockScmHandler).commitFiles(anyList(), eq(expectedMessageBuilder.toString()));
 
     this.nonSnapshotMojo.setDontFailOnCommit(true);
-
     this.nonSnapshotMojo.execute();
   }
 
   @Test(expected = RuntimeException.class)
   public void testDontFailOnCommitFalse() throws Exception {
     File pomFilesToCommit = new File("target/nonSnapshotDirtyModules.txt");
-    File pom1 = new File("target/test1/pom.xml");
+    File pom1 = new File("target/test1/pom.xml").getAbsoluteFile();
 
     PrintWriter writer = new PrintWriter(pomFilesToCommit);
-    writer.write(pom1.getPath() + System.getProperty("line.separator"));
+    writer.write("test1" + System.getProperty("line.separator"));
     writer.close();
 
-    doThrow(new RuntimeException("test")).when(this.mockScmHandler).commitFiles(anyList(), eq("Nonsnapshot Plugin: Version of 1 modules updated"));
+    when(this.mockMavenPomHandler.readArtifact(pom1)).thenReturn(new MavenModule(pom1, "at.nonblocking.tests", "test1", "1.1.1"));
+
+    StringBuilder expectedMessageBuilder = new StringBuilder();
+    expectedMessageBuilder.append(ScmHandler.NONSNAPSHOT_COMMIT_MESSAGE_PREFIX).append(" Version of 1 artifacts updated\n\nChanges:\n");
+    expectedMessageBuilder.append(" - ").append("test1").append("-").append("1.1.1").append("\n");
+    doThrow(new RuntimeException("test")).when(this.mockScmHandler).commitFiles(anyList(), eq(expectedMessageBuilder.toString()));
 
     this.nonSnapshotMojo.setDontFailOnCommit(false);
-
     this.nonSnapshotMojo.execute();
   }
 
