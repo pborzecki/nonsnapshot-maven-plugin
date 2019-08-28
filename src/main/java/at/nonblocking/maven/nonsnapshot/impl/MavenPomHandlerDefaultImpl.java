@@ -94,9 +94,9 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
     mavenModule.setVersionLocation(getVersionLocation(model));
 
     // Parent
-    if (model.getParent() != null) {
-      mavenModule.setParent(new MavenArtifact(model.getParent().getGroupId(),
-          model.getParent().getArtifactId(), model.getParent().getVersion()));
+    Parent parent = model.getParent();
+    if (parent != null) {
+      mavenModule.setParent(new MavenArtifact(parent.getGroupId(), parent.getArtifactId(), "pom", parent.getVersion()));
       mavenModule.setParentVersionLocation(getVersionLocation(model.getParent()));
     }
 
@@ -104,7 +104,9 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
     for (Dependency dependency : model.getDependencies()) {
       mavenModule.getDependencies().add(new MavenModuleDependency(
           getVersionLocation(dependency),
-          new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+          new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()),
+          dependency.getScope())
+      );
     }
 
     // Plugins
@@ -117,7 +119,9 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
         for (Dependency dependency : plugin.getDependencies()) {
           mavenModule.getDependencies().add(new MavenModuleDependency(
               getVersionLocation(dependency),
-              new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+              new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()),
+              dependency.getScope())
+          );
         }
       }
     }
@@ -127,7 +131,9 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
       for (Dependency dependency : profile.getDependencies()) {
         mavenModule.getDependencies().add(new MavenModuleDependency(
             getVersionLocation(dependency),
-            new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+            new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()),
+            dependency.getScope())
+        );
       }
     }
 
@@ -143,7 +149,9 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
           for (Dependency dependency : plugin.getDependencies()) {
             mavenModule.getDependencies().add(new MavenModuleDependency(
                 getVersionLocation(dependency),
-                new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+                new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()),
+                dependency.getScope())
+            );
           }
         }
       }
@@ -153,13 +161,20 @@ public class MavenPomHandlerDefaultImpl implements MavenPomHandler {
     LOG.info("Looking for dependencies management section in {}:{}", model.getGroupId(), model.getArtifactId());
     DependencyManagement dependencyManagement = model.getDependencyManagement();
     if(dependencyManagement != null) {
-      LOG.info("Processing dependencies management section in {}:{}", model.getGroupId(), model.getArtifactId());
+      LOG.info("Dependency management section found in {}:{} - processing", model.getGroupId(), model.getArtifactId());
       for (Dependency dependency : dependencyManagement.getDependencies()) {
         mavenModule.getDependencies().add(new MavenModuleDependency(
-                getVersionLocation(dependency),
-                new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion())));
+          getVersionLocation(dependency),
+          new MavenArtifact(dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion()),
+          dependency.getScope())
+        );
+        LOG.info(
+          "Dependency {}:{}:{}:{} (scope: {}) found in dependency management section and added",
+          dependency.getGroupId(), dependency.getArtifactId(), dependency.getType(), dependency.getVersion(), dependency.getScope());
       }
     }
+    else
+      LOG.info("Dependencies management section not found in {}:{}", model.getGroupId(), model.getArtifactId());
 
     return mavenModule;
   }

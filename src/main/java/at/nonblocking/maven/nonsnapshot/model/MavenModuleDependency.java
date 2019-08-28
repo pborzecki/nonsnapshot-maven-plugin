@@ -25,10 +25,17 @@ public class MavenModuleDependency {
 
   private int versionLocation;
   private MavenArtifact artifact;
+  private String scope = null;
 
   public MavenModuleDependency(int versionLocation, MavenArtifact artifact) {
     this.versionLocation = versionLocation;
     this.artifact = artifact;
+  }
+
+  public MavenModuleDependency(int versionLocation, MavenArtifact artifact, String scope) {
+    this.versionLocation = versionLocation;
+    this.artifact = artifact;
+    this.scope = scope;
   }
 
   public int getVersionLocation() {
@@ -45,6 +52,14 @@ public class MavenModuleDependency {
 
   public void setArtifact(MavenArtifact artifact) {
     this.artifact = artifact;
+  }
+
+  public String getScope() {
+    return scope;
+  }
+
+  public void setScope(String scope) {
+    this.scope = scope;
   }
 
 }

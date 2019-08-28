@@ -29,8 +29,8 @@ public class UpdatedUpstreamMavenArtifact extends MavenArtifact {
     private String newVersion;
     private boolean dirty;
 
-    public UpdatedUpstreamMavenArtifact(String groupId, String artifactId, String currentVersion, String newVersion) {
-        super(groupId, artifactId, currentVersion);
+    public UpdatedUpstreamMavenArtifact(String groupId, String artifactId, String type, String currentVersion, String newVersion) {
+        super(groupId, artifactId, type, currentVersion);
         this.newVersion = newVersion;
         this.dirty = true;
     }

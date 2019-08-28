@@ -200,7 +200,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           String latestVersion = getUpstreamDependencyHandler().resolveLatestVersion(upstreamArtifact, upstreamDependency, getRepositorySystem(), getRepositorySystemSession(), getRemoteRepositories());
           if (latestVersion != null) {
             LOG.info("Found newer version for upstream dependency {}:{}: {}", new Object[]{upstreamArtifact.getGroupId(), upstreamArtifact.getArtifactId(), latestVersion});
-            return new UpdatedUpstreamMavenArtifact(upstreamArtifact.getGroupId(), upstreamArtifact.getArtifactId(), upstreamArtifact.getVersion(), latestVersion);
+            return new UpdatedUpstreamMavenArtifact(upstreamArtifact.getGroupId(), upstreamArtifact.getArtifactId(), upstreamArtifact.getVersion(), upstreamArtifact.getType(), latestVersion);
           }
         } catch (NonSnapshotDependencyResolverException e) {
           if (isDontFailOnUpstreamVersionResolution()) {

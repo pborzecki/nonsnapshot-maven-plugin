@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Properties;
 
 /**
@@ -94,7 +94,7 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   private String timestampQualifierPattern = DEFAULT_TIMESTAMP_QUALIFIER_PATTERN;
 
   @Parameter
-  private List<String> upstreamDependencies;
+  private List upstreamDependencies;
 
   /**
    * Generate a property file with a property for all changed projects,
@@ -178,7 +178,8 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
     this.scmHandler.init(getMavenProject().getBasedir(), this.scmUser, this.scmPassword, properties);
 
-    this.processedUpstreamDependencies = this.upstreamDependencyHandler.processDependencyList(getUpstreamDependencies());
+    this.processedUpstreamDependencies = this.upstreamDependencyHandler.processDependencyList(
+            getUpstreamDependencies(), getMavenPomHandler(), getRepositorySystem(), getRepositorySystemSession(), getRemoteRepositories());
   }
 
   protected File getDirtyModulesRegistryFile() {
@@ -254,11 +255,11 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
     this.timestampQualifierPattern = timestampQualifierPattern;
   }
 
-  public List<String> getUpstreamDependencies() {
+  public List getUpstreamDependencies() {
     return upstreamDependencies;
   }
 
-  public void setUpstreamDependencies(List<String> upstreamDependencies) {
+  public void setUpstreamDependencies(List upstreamDependencies) {
     this.upstreamDependencies = upstreamDependencies;
   }
 

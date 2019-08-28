@@ -15,20 +15,22 @@
  */
 package at.nonblocking.maven.nonsnapshot.impl;
 
+import at.nonblocking.maven.nonsnapshot.BomDependency;
+import at.nonblocking.maven.nonsnapshot.MavenPomHandler;
 import at.nonblocking.maven.nonsnapshot.ProcessedUpstreamDependency;
 import at.nonblocking.maven.nonsnapshot.UpstreamDependencyHandler;
 import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotDependencyResolverException;
 import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
 import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
+import at.nonblocking.maven.nonsnapshot.model.MavenModule;
+import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.VersionRangeRequest;
-import org.eclipse.aether.resolution.VersionRangeResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResult;
+import org.eclipse.aether.resolution.*;
 import org.eclipse.aether.version.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,54 +50,131 @@ public class UpstreamDependencyHandlerDefaultImpl implements UpstreamDependencyH
 
   private static final Logger LOG = LoggerFactory.getLogger(UpstreamDependencyHandlerDefaultImpl.class);
 
+  private static class VersionParser {
+
+    private Integer versionMajor = null;
+    private Integer versionMinor = null;
+    private Integer versionIncrement = null;
+
+    public void parseVersion(String version) throws NumberFormatException {
+      if (version != null && !version.isEmpty() && !"LATEST".equalsIgnoreCase(version)) {
+        String[] versionParts = version.split("\\.");
+        versionMajor = Integer.parseInt(versionParts[0]);
+        if (versionParts.length > 1) {
+          versionMinor = Integer.parseInt(versionParts[1]);
+        }
+        if (versionParts.length > 2) {
+          versionIncrement = Integer.parseInt(versionParts[2]);
+        }
+      }
+    }
+
+    Integer getVersionMajor() { return versionMajor; }
+    Integer getVersionMinor() { return versionMinor; }
+    Integer getVersionIncrement() { return versionIncrement; }
+  }
+
+  private ProcessedUpstreamDependency makeProcessedUpstreamDependencyFromMavenArtifact(MavenArtifact artifact)
+  {
+    VersionParser versionParser = new VersionParser();
+    try {
+      versionParser.parseVersion(artifact.getVersion());
+    } catch (NumberFormatException e) {
+      throw new NonSnapshotPluginException("Illegal upstream dependency version number: " + artifact.getVersion() + " in artifact id: " + artifact.toString());
+    }
+    Pattern groupIdPattern = createPattern(artifact.getGroupId());
+    Pattern artifactIdPattern = createPattern(artifact.getArtifactId());
+    return new ProcessedUpstreamDependency(
+            groupIdPattern, artifactIdPattern, versionParser.getVersionMajor(), versionParser.getVersionMinor(), versionParser.getVersionIncrement());
+  }
+
+  private ProcessedUpstreamDependency makeProcessedUpstreamDependencyFromUpstreamDependencyString(String upstreamDependencyString)
+  {
+    if (upstreamDependencyString.trim().isEmpty()) {
+      throw new NonSnapshotPluginException("Illegal upstream dependency: " + upstreamDependencyString);
+    }
+
+    return makeProcessedUpstreamDependencyFromMavenArtifact(new MavenArtifact(upstreamDependencyString));
+  }
+
+  private void processBomUpstreamDependency(String upstreamDependencyString,
+                                            List<ProcessedUpstreamDependency> processedUpstreamDependencies,
+                                            MavenPomHandler mavenPomHandler,
+                                            RepositorySystem repositorySystem,
+                                            RepositorySystemSession repositorySystemSession,
+                                            List<RemoteRepository> remoteRepositories)
+  {
+    try {
+      LOG.info("Resolving artifact: {}", upstreamDependencyString);
+      ArtifactRequest artifactRequest = new ArtifactRequest(new DefaultArtifact(upstreamDependencyString), remoteRepositories, null);
+      ArtifactResult result = repositorySystem.resolveArtifact(repositorySystemSession, artifactRequest);
+      LOG.info("Artifact {} resolved parsing its dependencies", upstreamDependencyString);
+      MavenModule bomMavenModule = mavenPomHandler.readArtifact(result.getArtifact().getFile());
+      for(MavenModuleDependency indirectDependency : bomMavenModule.getDependencies()) {
+        MavenArtifact indirectDependencyArtifact = indirectDependency.getArtifact();
+        String indirectDependencyScope = indirectDependency.getScope();
+        processedUpstreamDependencies.add(makeProcessedUpstreamDependencyFromMavenArtifact(indirectDependencyArtifact));
+        LOG.info(
+          "Indirect dependency: {} (scope: {}) found and added", indirectDependencyArtifact.toString(), indirectDependencyScope);
+        if(indirectDependencyArtifact.getType() != null && indirectDependencyScope != null &&
+           indirectDependencyArtifact.getType().equals("pom") && indirectDependencyScope.equals("import"))
+        {
+          LOG.info(
+            "Indirect dependency: {} is of pom type and has import scope - it will be treated as bom upstream dependency",
+            indirectDependencyArtifact.toString()
+          );
+          processBomUpstreamDependency(
+            indirectDependencyArtifact.toString(), processedUpstreamDependencies, mavenPomHandler, repositorySystem, repositorySystemSession, remoteRepositories);
+        }
+
+
+      }
+    } catch (ArtifactResolutionException e) {
+      throw new NonSnapshotDependencyResolverException("Couldn't resolve bom dependency: " + upstreamDependencyString, e);
+    }
+  }
+
   @Override
-  public List<ProcessedUpstreamDependency> processDependencyList(List<String> upstreamDependencyStrings) {
-    if (upstreamDependencyStrings == null || upstreamDependencyStrings.isEmpty()) {
+  public List<ProcessedUpstreamDependency> processDependencyList(List upstreamDependencies,
+                                                                 MavenPomHandler mavenPomHandler,
+                                                                 RepositorySystem repositorySystem,
+                                                                 RepositorySystemSession repositorySystemSession,
+                                                                 List<RemoteRepository> remoteRepositories) {
+    LOG.info("Collecting upstream dependencies");
+
+    if (upstreamDependencies == null || upstreamDependencies.isEmpty()) {
       return null;
     }
 
-    List<ProcessedUpstreamDependency> upstreamDependencies = new ArrayList<>(upstreamDependencyStrings.size());
+    List<ProcessedUpstreamDependency> processedUpstreamDependencies = new ArrayList<>(upstreamDependencies.size());
 
-    for (String upstreamDependencyString : upstreamDependencyStrings) {
-      if (upstreamDependencyString.trim().isEmpty()) {
-        throw new NonSnapshotPluginException("Illegal upstreamDependency: " + upstreamDependencyString);
+    for (Object upstreamDependency : upstreamDependencies) {
+      boolean isUpstreamBomDependency = false;
+      String upstreamDependencyString;
+
+      if(upstreamDependency instanceof BomDependency) {
+        BomDependency dependency = (BomDependency) upstreamDependency;
+        upstreamDependencyString = dependency.getUpstreamDependency();
+        isUpstreamBomDependency = true;
+      }
+      else if(upstreamDependency instanceof String) {
+        upstreamDependencyString = (String) upstreamDependency;
+      }
+      else {
+        throw new NonSnapshotPluginException("Illegal upstream dependency type: " + upstreamDependency.toString());
       }
 
-      Pattern groupPattern;
-      Pattern artifactPattern = null;
-      Integer versionMajor = null;
-      Integer versionMinor = null;
-      Integer versionIncrement = null;
+      processedUpstreamDependencies.add(makeProcessedUpstreamDependencyFromUpstreamDependencyString(upstreamDependencyString));
 
-      String[] parts = upstreamDependencyString.split(":");
-      groupPattern = createPattern(parts[0]);
-      if (parts.length > 1) {
-        artifactPattern = createPattern(parts[1]);
-      }
-      if (parts.length > 2) {
-        String version = parts[2].trim();
-        if (!version.isEmpty() && !"LATEST".equalsIgnoreCase(version)) {
-          String[] versionParts = version.split("\\.");
-          try {
-            versionMajor = Integer.parseInt(versionParts[0]);
-            if (versionParts.length > 1) {
-              versionMinor = Integer.parseInt(versionParts[1]);
-            }
-            if (versionParts.length > 2) {
-              versionIncrement = Integer.parseInt(versionParts[2]);
-            }
-          } catch (NumberFormatException e) {
-            throw new NonSnapshotPluginException("Illegal upstreamDependency: " + upstreamDependencyString);
-          }
-        }
-      }
-
-      ProcessedUpstreamDependency upstreamDependency = new ProcessedUpstreamDependency(groupPattern, artifactPattern, versionMajor, versionMinor, versionIncrement);
-      LOG.debug("Upstream dependency: {}", upstreamDependency);
-      upstreamDependencies.add(upstreamDependency);
+      if(isUpstreamBomDependency) {
+        LOG.info("Bom upstream dependency: {} found and added", upstreamDependencyString);
+        processBomUpstreamDependency(
+                upstreamDependencyString, processedUpstreamDependencies, mavenPomHandler, repositorySystem, repositorySystemSession, remoteRepositories);
+      } else
+        LOG.info("Regular upstream dependency: {} found and added", upstreamDependencyString);
     }
 
-    return upstreamDependencies;
+    return processedUpstreamDependencies;
   }
 
   private Pattern createPattern(String regex) {

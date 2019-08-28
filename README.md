@@ -59,6 +59,9 @@ The plugin can be added to a separate (POM-) project or your main aggregator pro
 				<dontFailOnCommit>false</dontFailOnCommit>
 				<dontFailOnUpstreamVersionResolution>false</dontFailOnUpstreamVersionResolution>
 				<upstreamDependencies>
+					<bomDependency>
+						<upstreamDependency>at.nonblocking:all-bom:pom:2.10.3</upstreamDependency>
+					</bomDependency>
 					<upstreamDependency>at.nonblocking:*:LATEST</upstreamDependency>
 					<!-- Examples -->
 					<!-- <upstreamDependency>at.nonblocking:*:2.10</upstreamDependency> -->
@@ -98,6 +101,13 @@ The plugin can be added to a separate (POM-) project or your main aggregator pro
   ```xml
   	<upstreamDependency>at.nonblocking:test:2.3.4</upstreamDependency>
   	<upstreamDependency>at.nonblocking:*:LATEST</upstreamDependency>
+  ```
+* The upstream dependency list can contain dependencies to [bom artifacts](https://howtodoinjava.com/maven/maven-bom-bill-of-materials-dependency/). Artifacts pointed in that way are not only added as upstream dependecies but are being resolved and its dependencies are also added as upstream dependecies. If one that dependencies is bom (type: pom, scope: import) it is treated in the same way (recursively) 
+
+  ```xml
+    <bomDependency>
+        <upstreamDependency>at.nonblocking:all-bom:2.5.6</upstreamDependency>
+    </upstreamDependency>
   ```
 
 Usage

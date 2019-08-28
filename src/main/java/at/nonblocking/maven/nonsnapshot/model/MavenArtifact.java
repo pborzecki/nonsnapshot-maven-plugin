@@ -24,11 +24,36 @@ public class MavenArtifact {
 
   private String groupId;
   private String artifactId;
+  private String type;
   private String version;
+
+  public MavenArtifact(String artifactDescription) {
+    String[] parts = artifactDescription.split(":");
+    if (parts.length < 2)
+      throw new IllegalArgumentException("Wrong maven artifact description: " + artifactDescription);
+
+    groupId = parts[0];
+    artifactId = parts[1];
+    if(parts.length == 4) {
+      type = parts[2];
+      version = parts[3];
+    }
+    else if(parts.length == 3) {
+      version = parts[2];
+    }
+  }
 
   public MavenArtifact(String groupId, String artifactId, String version) {
     this.groupId = groupId;
     this.artifactId = artifactId;
+    this.type = null;
+    this.version = version;
+  }
+
+  public MavenArtifact(String groupId, String artifactId, String type, String version) {
+    this.groupId = groupId;
+    this.artifactId = artifactId;
+    this.type = type;
     this.version = version;
   }
 
@@ -48,6 +73,14 @@ public class MavenArtifact {
     this.artifactId = artifactId;
   }
 
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
   public String getVersion() {
     return version;
   }
@@ -58,6 +91,12 @@ public class MavenArtifact {
 
   @Override
   public String toString() {
-      return groupId + ":" + artifactId + ":" + version;
+    StringBuilder builder = new StringBuilder(64);
+    builder.append(groupId).append(":").append(artifactId);
+    if(type != null)
+        builder.append(":").append(type);
+    if(version != null)
+      builder.append(":").append(version);
+    return builder.toString();
   }
 }

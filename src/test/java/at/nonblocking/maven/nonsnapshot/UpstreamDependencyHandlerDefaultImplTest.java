@@ -33,7 +33,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
-    List<ProcessedUpstreamDependency> upstreamDependencies = handler.processDependencyList(upstreamDependencyStrings);
+    List<ProcessedUpstreamDependency> upstreamDependencies = handler.processDependencyList(upstreamDependencyStrings, null, null, null, null);
 
     assertNotNull(upstreamDependencies);
     assertEquals(5, upstreamDependencies.size());

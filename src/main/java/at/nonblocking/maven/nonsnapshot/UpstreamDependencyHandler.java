@@ -33,10 +33,19 @@ public interface UpstreamDependencyHandler {
   /**
    * Process the upstream dependency list from the configuration and create objects from it.
    *
-   * @param upstreamDependencyStrings List<String>
+   * @param upstreamDependencies List<>
+   * @param mavenPomHandler MavenPomHandler
+   * @param repositorySystem RepositorySystem
+   * @param repositorySystemSession RepositorySystemSession
+   * @param remoteRepositories List<RemoteRepository>
    * @return List<ProcessedUpstreamDependency>
+   * @throws NonSnapshotDependencyResolverException
    */
-  List<ProcessedUpstreamDependency> processDependencyList(List<String> upstreamDependencyStrings);
+  List<ProcessedUpstreamDependency> processDependencyList(List upstreamDependencies,
+                                                          MavenPomHandler mavenPomHandler,
+                                                          RepositorySystem repositorySystem,
+                                                          RepositorySystemSession repositorySystemSession,
+                                                          List<RemoteRepository> remoteRepositories);
 
   /**
    * Find a matching upstream dependency declaration for given maven artifact.
