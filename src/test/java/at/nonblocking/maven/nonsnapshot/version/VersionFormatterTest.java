@@ -12,22 +12,31 @@ import static org.junit.Assert.assertThat;
  * @author Yablokov Aleksey
  */
 public class VersionFormatterTest {
-    private static final VersionParser.Version noBranch = new VersionParser.Version(1, 2, 3, null, null);
-    private static final VersionParser.Version easyBranch = new VersionParser.Version(1, 2, 3, "master", 4);
-    private static final VersionParser.Version hardBranch = new VersionParser.Version(1, 2, 3, "pks-1234-bnu-integration-5", 4);
+    private static final VersionParser.Version noBranch = new VersionParser.Version(1, 2, 3, null, null, false);
+    private static final VersionParser.Version noBranchSnapshot = new VersionParser.Version(1, 2, 3, null, null, true);
+    private static final VersionParser.Version easyBranch = new VersionParser.Version(1, 2, 3, "master", 4, false);
+    private static final VersionParser.Version easyBranchSnapshot = new VersionParser.Version(1, 2, 3, "master", null, true);
+    private static final VersionParser.Version hardBranch = new VersionParser.Version(1, 2, 3, "pks-1234-bnu-integration-5", 4, false);
+    private static final VersionParser.Version hardBranchSnapshot = new VersionParser.Version(1, 2, 3, "pks-1234-bnu-integration-5", null, true);
 
     @Test
     public void withBranch() {
         assertThat(formatWithBranch(noBranch), equalTo("1.2.3"));
+        assertThat(formatWithBranch(noBranchSnapshot), equalTo("1.2.3-SNAPSHOT"));
         assertThat(formatWithBranch(easyBranch), equalTo("1.2.3-master-4"));
+        assertThat(formatWithBranch(easyBranchSnapshot), equalTo("1.2.3-master-SNAPSHOT"));
         assertThat(formatWithBranch(hardBranch), equalTo("1.2.3-pks-1234-bnu-integration-5-4"));
+        assertThat(formatWithBranch(hardBranchSnapshot), equalTo("1.2.3-pks-1234-bnu-integration-5-SNAPSHOT"));
     }
 
     @Test
     public void withoutBranch() {
         assertThat(formatWithoutBranch(noBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(noBranchSnapshot), equalTo("1.2.3-SNAPSHOT"));
         assertThat(formatWithoutBranch(easyBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(easyBranchSnapshot), equalTo("1.2.3-SNAPSHOT"));
         assertThat(formatWithoutBranch(hardBranch), equalTo("1.2.3"));
+        assertThat(formatWithoutBranch(hardBranchSnapshot), equalTo("1.2.3-SNAPSHOT"));
     }
 
 }

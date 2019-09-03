@@ -5,13 +5,20 @@ package at.nonblocking.maven.nonsnapshot.version;
  */
 class VersionIncrementer {
 
-    static VersionParser.Version incrementMinorVersion(VersionParser.Version version) {
+    static VersionParser.Version incrementMinorVersion(VersionParser.Version version, boolean useSnapshot) {
+        Integer buildVersion = version.getBuildVersion();
+        if(useSnapshot || version.getBranchSuffix() == null)
+            buildVersion = null;
+        else if(buildVersion == null)
+            buildVersion = 1;
+
         return new VersionParser.Version(
                 version.getMajorVersion(),
                 version.getMiddleVersion(),
                 version.getMinorVersion() + 1,
                 version.getBranchSuffix(),
-                version.getBuildVersion()
+                buildVersion,
+                useSnapshot
         );
     }
 
@@ -21,28 +28,26 @@ class VersionIncrementer {
                 version.getMiddleVersion(),
                 version.getMinorVersion(),
                 null,
-                null
+                null,
+                version.getIsItSnapshot()
         );
     }
 
-    static VersionParser.Version incrementBuildVersion(VersionParser.Version version, String branchName) {
-        if (version.getBuildVersion() != null) {
-            return new VersionParser.Version(
-                    version.getMajorVersion(),
-                    version.getMiddleVersion(),
-                    version.getMinorVersion(),
-                    branchName,
-                    version.getBuildVersion() + 1
-            );
-        } else {
-            return new VersionParser.Version(
-                    version.getMajorVersion(),
-                    version.getMiddleVersion(),
-                    version.getMinorVersion(),
-                    branchName,
-                    1
-            );
-        }
+    static VersionParser.Version incrementBuildVersion(VersionParser.Version version, String branchName, boolean useSnapshot) {
+        Integer buildVersion =  version.getBuildVersion();
+        if(buildVersion != null)
+            buildVersion = useSnapshot ? null : buildVersion + 1;
+        else
+            buildVersion = useSnapshot ? null : 1;
+
+        return new VersionParser.Version(
+                version.getMajorVersion(),
+                version.getMiddleVersion(),
+                version.getMinorVersion(),
+                branchName,
+                buildVersion,
+                useSnapshot
+        );
     }
 
 }

@@ -10,11 +10,14 @@ class VersionFormatter {
         sb.append(version.getMajorVersion()).append(".");
         sb.append(version.getMiddleVersion()).append(".");
         sb.append(version.getMinorVersion());
-        if (version.getBranchSuffix() != null && version.getBuildVersion() != null) {
-            sb.append("-");
-            sb.append(version.getBranchSuffix()).append("-");
-            sb.append(version.getBuildVersion());
+        if (version.getBranchSuffix() != null) {
+            if(version.getBuildVersion() != null) {
+                sb.append("-").append(version.getBranchSuffix()).append("-").append(version.getBuildVersion());
+            } else if(version.getIsItSnapshot())
+                sb.append("-").append(version.getBranchSuffix()).append("-SNAPSHOT");
         }
+        else if(version.getIsItSnapshot())
+            sb.append("-SNAPSHOT");
         return sb.toString();
     }
 
@@ -23,6 +26,8 @@ class VersionFormatter {
         sb.append(version.getMajorVersion()).append(".");
         sb.append(version.getMiddleVersion()).append(".");
         sb.append(version.getMinorVersion());
+        if(version.getIsItSnapshot())
+            sb.append("-SNAPSHOT");
         return sb.toString();
     }
 }

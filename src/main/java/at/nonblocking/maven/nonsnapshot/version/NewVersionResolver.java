@@ -11,11 +11,13 @@ import static at.nonblocking.maven.nonsnapshot.version.VersionIncrementer.remove
  */
 public class NewVersionResolver {
     private final boolean appendBranchNameToVersion;
+    private final boolean useSnapshotVersion;
     private final String replaceSpecialSymbolsInVersionBy;
     private final VersionParser parser;
 
-    public NewVersionResolver(boolean appendBranchNameToVersion, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
+    public NewVersionResolver(boolean appendBranchNameToVersion, boolean useSnapshotVersion, String incrementVersionPattern, String replaceSpecialSymbolsInVersionBy) {
         this.appendBranchNameToVersion = appendBranchNameToVersion;
+        this.useSnapshotVersion = useSnapshotVersion;
         this.parser = new VersionParser(incrementVersionPattern);
         this.replaceSpecialSymbolsInVersionBy = replaceSpecialSymbolsInVersionBy;
     }
@@ -31,11 +33,12 @@ public class NewVersionResolver {
             if (branchName == null || branchName.isEmpty()) {
                 throw new IllegalArgumentException("Branch name is null");
             }
-            VersionParser.Version newV = incrementBuildVersion(currV, branchName);
+
+            VersionParser.Version newV = incrementBuildVersion(currV, branchName, useSnapshotVersion);
             newVersion = VersionFormatter.formatWithBranch(newV);
             newVersion = replaceSpecialSymbols(newVersion);
         } else {
-            VersionParser.Version newV = incrementMinorVersion(removeBranchName(currV));
+            VersionParser.Version newV = incrementMinorVersion(removeBranchName(currV), useSnapshotVersion);
             newVersion = VersionFormatter.formatWithBranch(newV);
         }
         return newVersion;

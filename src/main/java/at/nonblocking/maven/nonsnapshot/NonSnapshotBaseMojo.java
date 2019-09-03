@@ -136,6 +136,9 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
   @Parameter(defaultValue = "false", property = "nonsnapshot.appendBranchNameToVersion")
   private boolean appendBranchNameToVersion;
 
+  @Parameter(defaultValue = "false", property = "nonsnapshot.useSnapshotVersion")
+  private boolean useSnapshotVersion;
+
   @Parameter(property = "nonsnapshot.branchName")
   private String branchName;
 
@@ -373,6 +376,14 @@ abstract class NonSnapshotBaseMojo extends AbstractMojo implements Contextualiza
 
   public void setAppendBranchNameToVersion(boolean appendBranchNameToVersion) {
     this.appendBranchNameToVersion = appendBranchNameToVersion;
+  }
+
+  public boolean isUseSnapshotVersion() {
+    return useSnapshotVersion;
+  }
+
+  public void setUseSnapshotVersion(boolean useSnapshotVersion) {
+    this.useSnapshotVersion = useSnapshotVersion;
   }
 
   public String getReplaceSpecialSymbolsInVersionBy() {

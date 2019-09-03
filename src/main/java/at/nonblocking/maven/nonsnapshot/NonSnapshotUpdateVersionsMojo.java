@@ -230,7 +230,7 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
           throw new NonSnapshotPluginException("Module path is no working directory: " + modulesPath);
         }
         String branch = getBranchName() != null ? getBranchName() : getScmHandler().getBranchName();
-        NewVersionResolver resolver = new NewVersionResolver(isAppendBranchNameToVersion(),
+        NewVersionResolver resolver = new NewVersionResolver(isAppendBranchNameToVersion(), isUseSnapshotVersion(),
                 getIncrementVersionPattern(), getReplaceSpecialSymbolsInVersionBy());
         String newVersion = resolver.resolveNewVersion(mavenModule.getVersion(), branch);
         mavenModule.setNewVersion(newVersion);
