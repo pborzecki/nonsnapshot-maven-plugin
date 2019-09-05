@@ -9,10 +9,10 @@ import static at.nonblocking.maven.nonsnapshot.version.VersionIncrementer.increm
  * @author Yablokov Aleksey
  */
 public class VersionIncrementerTest {
-    private static final VersionParser.Version noBranch = new VersionParser.Version(1, 2, 3, null, null, false);
-    private static final VersionParser.Version noBranchSnapshot = new VersionParser.Version(1, 2, 3, null, null, true);
-    private static final VersionParser.Version withBranch = new VersionParser.Version(1, 2, 3, "master", 4, false);
-    private static final VersionParser.Version withBranchSnapshot = new VersionParser.Version(1, 2, 3, "master", null, true);
+    private static final Version noBranch = new Version(1, 2, 3, null, null, false);
+    private static final Version noBranchSnapshot = new Version(1, 2, 3, null, null, true);
+    private static final Version withBranch = new Version(1, 2, 3, "master", 4, false);
+    private static final Version withBranchSnapshot = new Version(1, 2, 3, "master", null, true);
 
     @Test
     public void incrementMinorVersionTest() {

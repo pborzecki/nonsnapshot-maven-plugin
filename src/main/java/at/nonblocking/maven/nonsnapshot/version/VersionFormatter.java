@@ -5,7 +5,7 @@ package at.nonblocking.maven.nonsnapshot.version;
  */
 class VersionFormatter {
 
-    static String formatWithBranch(VersionParser.Version version) {
+    static String formatWithBranch(Version version) {
         StringBuilder sb = new StringBuilder();
         sb.append(version.getMajorVersion()).append(".");
         sb.append(version.getMiddleVersion()).append(".");
@@ -21,7 +21,7 @@ class VersionFormatter {
         return sb.toString();
     }
 
-    static String formatWithoutBranch(VersionParser.Version version) {
+    static String formatWithoutBranch(Version version) {
         StringBuilder sb = new StringBuilder();
         sb.append(version.getMajorVersion()).append(".");
         sb.append(version.getMiddleVersion()).append(".");

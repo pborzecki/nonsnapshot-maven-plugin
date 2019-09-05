@@ -15,15 +15,14 @@
  */
 package at.nonblocking.maven.nonsnapshot.impl;
 
-import at.nonblocking.maven.nonsnapshot.BomDependency;
-import at.nonblocking.maven.nonsnapshot.MavenPomHandler;
-import at.nonblocking.maven.nonsnapshot.ProcessedUpstreamDependency;
-import at.nonblocking.maven.nonsnapshot.UpstreamDependencyHandler;
+import at.nonblocking.maven.nonsnapshot.*;
 import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotDependencyResolverException;
 import at.nonblocking.maven.nonsnapshot.exception.NonSnapshotPluginException;
 import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
 import at.nonblocking.maven.nonsnapshot.model.MavenModule;
 import at.nonblocking.maven.nonsnapshot.model.MavenModuleDependency;
+import at.nonblocking.maven.nonsnapshot.version.VersionParser;
+import at.nonblocking.maven.nonsnapshot.version.Version;
 import org.codehaus.plexus.component.annotations.Component;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -31,7 +30,6 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.*;
-import org.eclipse.aether.version.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,42 +48,18 @@ public class UpstreamDependencyHandlerDefaultImpl implements UpstreamDependencyH
 
   private static final Logger LOG = LoggerFactory.getLogger(UpstreamDependencyHandlerDefaultImpl.class);
 
-  private static class VersionParser {
-
-    private Integer versionMajor = null;
-    private Integer versionMinor = null;
-    private Integer versionIncrement = null;
-
-    public void parseVersion(String version) throws NumberFormatException {
-      if (version != null && !version.isEmpty() && !"LATEST".equalsIgnoreCase(version)) {
-        String[] versionParts = version.split("\\.");
-        versionMajor = Integer.parseInt(versionParts[0]);
-        if (versionParts.length > 1) {
-          versionMinor = Integer.parseInt(versionParts[1]);
-        }
-        if (versionParts.length > 2) {
-          versionIncrement = Integer.parseInt(versionParts[2]);
-        }
-      }
-    }
-
-    Integer getVersionMajor() { return versionMajor; }
-    Integer getVersionMinor() { return versionMinor; }
-    Integer getVersionIncrement() { return versionIncrement; }
-  }
-
   private ProcessedUpstreamDependency makeProcessedUpstreamDependencyFromMavenArtifact(MavenArtifact artifact)
   {
-    VersionParser versionParser = new VersionParser();
+    VersionParser versionParser = new VersionParser(Constants.DEFAULT_UPSTREAM_DEPENDENCY_VERSION_PATTERN);
+    Version version;
     try {
-      versionParser.parseVersion(artifact.getVersion());
-    } catch (NumberFormatException e) {
-      throw new NonSnapshotPluginException("Illegal upstream dependency version number: " + artifact.getVersion() + " in artifact id: " + artifact.toString());
+      version = versionParser.parse(artifact.getVersion());
+    } catch (IllegalArgumentException e) {
+      throw new NonSnapshotPluginException("Illegal upstream dependency version number: " + artifact.getVersion() + " in artifact id: " + artifact.toString() + " - details: " + e.getMessage());
     }
     Pattern groupIdPattern = createPattern(artifact.getGroupId());
     Pattern artifactIdPattern = createPattern(artifact.getArtifactId());
-    return new ProcessedUpstreamDependency(
-            groupIdPattern, artifactIdPattern, versionParser.getVersionMajor(), versionParser.getVersionMinor(), versionParser.getVersionIncrement());
+    return new ProcessedUpstreamDependency(groupIdPattern, artifactIdPattern, version);
   }
 
   private ProcessedUpstreamDependency makeProcessedUpstreamDependencyFromUpstreamDependencyString(String upstreamDependencyString)
@@ -214,20 +188,28 @@ public class UpstreamDependencyHandlerDefaultImpl implements UpstreamDependencyH
       currentVersion = currentVersion.split("-")[0];
     }
 
+    Version upstreamDependencyVersion = upstreamDependency.getVersion();
+    if(upstreamDependencyVersion.getIsItSnapshot()) {
+      LOG.info("Latest version resolution for dependency {}:{} will be skipped cause SNAPSHOT version has been provided as upstream dependency ({})",
+              new Object[]{mavenArtifact.getGroupId(), mavenArtifact.getArtifactId(), upstreamDependencyVersion});
+      return upstreamDependencyVersion.toString();
+    }
+
+    // TODO: bellow code will be refactored soon, due to version manipulation. Refactoring just begun, but is not complete yet...
     String versionPrefix;
     String versionQuery;
 
-    if (upstreamDependency.getVersionIncrement() != null) {
-      versionPrefix = upstreamDependency.getVersionMajor() + "." + upstreamDependency.getVersionMinor() + "." + upstreamDependency.getVersionIncrement();
-      String nextIncrement = upstreamDependency.getVersionMajor() + "." + upstreamDependency.getVersionMinor() + "." + (upstreamDependency.getVersionIncrement() + 1);
+    if (upstreamDependencyVersion.getMinorVersion() != null) {
+      versionPrefix = upstreamDependencyVersion.getMajorVersion() + "." + upstreamDependencyVersion.getMiddleVersion() + "." + upstreamDependencyVersion.getMinorVersion();
+      String nextIncrement = upstreamDependencyVersion.getMajorVersion() + "." + upstreamDependencyVersion.getMiddleVersion() + "." + (upstreamDependencyVersion.getMinorVersion() + 1);
       versionQuery = mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId() + ":(" + currentVersion + "," + nextIncrement + ")";
-    } else if (upstreamDependency.getVersionMinor() != null) {
-      versionPrefix = upstreamDependency.getVersionMajor() + "." + upstreamDependency.getVersionMinor();
-      String nextMinor = upstreamDependency.getVersionMajor() + "." + (upstreamDependency.getVersionMinor() + 1) + ".0";
+    } else if (upstreamDependencyVersion.getMiddleVersion() != null) {
+      versionPrefix = upstreamDependencyVersion.getMajorVersion() + "." + upstreamDependencyVersion.getMiddleVersion();
+      String nextMinor = upstreamDependencyVersion.getMajorVersion() + "." + (upstreamDependencyVersion.getMiddleVersion() + 1) + ".0";
       versionQuery = mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId() + ":(" + currentVersion + "," + nextMinor + ")";
-    } else if (upstreamDependency.getVersionMajor() != null) {
-      versionPrefix = String.valueOf(upstreamDependency.getVersionMajor());
-      String nextMajor = (upstreamDependency.getVersionMajor() + 1) + ".0.0";
+    } else if (upstreamDependencyVersion.getMajorVersion() != null) {
+      versionPrefix = String.valueOf(upstreamDependencyVersion.getMajorVersion());
+      String nextMajor = (upstreamDependencyVersion.getMajorVersion() + 1) + ".0.0";
       versionQuery = mavenArtifact.getGroupId() + ":" + mavenArtifact.getArtifactId() + ":(" + currentVersion + "," + nextMajor + ")";
     } else {
       versionPrefix = "";
@@ -245,10 +227,10 @@ public class UpstreamDependencyHandlerDefaultImpl implements UpstreamDependencyH
       VersionRangeResult result = repositorySystem.resolveVersionRange(repositorySystemSession, rangeRequest);
       LOG.debug("Found versions for {}: {}", versionQuery, result);
 
-      List<Version> versions = result.getVersions();
+      List<org.eclipse.aether.version.Version> versions = result.getVersions();
       Collections.reverse(versions);
 
-      for (Version version : versions) {
+      for (org.eclipse.aether.version.Version version : versions) {
         String versionStr = version.toString();
         if (!versionStr.endsWith("-SNAPSHOT") && versionStr.startsWith(versionPrefix)) {
           return versionStr;

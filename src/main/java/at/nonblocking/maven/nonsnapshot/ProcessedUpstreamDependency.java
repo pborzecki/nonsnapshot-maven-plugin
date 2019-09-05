@@ -15,6 +15,8 @@
  */
 package at.nonblocking.maven.nonsnapshot;
 
+import at.nonblocking.maven.nonsnapshot.version.Version;
+
 import java.util.regex.Pattern;
 
 /**
@@ -26,16 +28,12 @@ public class ProcessedUpstreamDependency {
 
   private Pattern groupPattern;
   private Pattern artifactPattern;
-  private Integer versionMajor;
-  private Integer versionMinor;
-  private Integer versionIncrement;
+  private Version version;
 
-  public ProcessedUpstreamDependency(Pattern groupPattern, Pattern artifactPattern, Integer versionMajor, Integer versionMinor, Integer versionIncrement) {
+  public ProcessedUpstreamDependency(Pattern groupPattern, Pattern artifactPattern, Version version) {
     this.groupPattern = groupPattern;
     this.artifactPattern = artifactPattern;
-    this.versionMajor = versionMajor;
-    this.versionMinor = versionMinor;
-    this.versionIncrement = versionIncrement;
+    this.version = version;
   }
 
   public Pattern getGroupPattern() {
@@ -54,38 +52,16 @@ public class ProcessedUpstreamDependency {
     this.artifactPattern = artifactPattern;
   }
 
-  public Integer getVersionMajor() {
-    return versionMajor;
-  }
+  public Version getVersion() { return version; }
 
-  public void setVersionMajor(Integer versionMajor) {
-    this.versionMajor = versionMajor;
-  }
-
-  public Integer getVersionMinor() {
-    return versionMinor;
-  }
-
-  public void setVersionMinor(Integer versionMinor) {
-    this.versionMinor = versionMinor;
-  }
-
-  public Integer getVersionIncrement() {
-    return versionIncrement;
-  }
-
-  public void setVersionIncrement(Integer versionIncrement) {
-    this.versionIncrement = versionIncrement;
-  }
+  public void setVersionMajor(Version version) { this.version = version; }
 
   @Override
   public String toString() {
     return "UpstreamDependency{" +
         "groupPattern=" + groupPattern +
         ", artifactPattern=" + artifactPattern +
-        ", versionMajor=" + versionMajor +
-        ", versionMinor=" + versionMinor +
-        ", versionIncrement=" + versionIncrement +
+        ", version=" + version.toString() +
         '}';
   }
 }

@@ -28,17 +28,17 @@ public class NewVersionResolver {
         }
 
         String newVersion;
-        VersionParser.Version currV = parser.parse(currVersion);
+        Version currV = parser.parse(currVersion);
         if (appendBranchNameToVersion) {
             if (branchName == null || branchName.isEmpty()) {
                 throw new IllegalArgumentException("Branch name is null");
             }
 
-            VersionParser.Version newV = incrementBuildVersion(currV, branchName, useSnapshotVersion);
+            Version newV = incrementBuildVersion(currV, branchName, useSnapshotVersion);
             newVersion = VersionFormatter.formatWithBranch(newV);
             newVersion = replaceSpecialSymbols(newVersion);
         } else {
-            VersionParser.Version newV = incrementMinorVersion(removeBranchName(currV), useSnapshotVersion);
+            Version newV = incrementMinorVersion(removeBranchName(currV), useSnapshotVersion);
             newVersion = VersionFormatter.formatWithBranch(newV);
         }
         return newVersion;

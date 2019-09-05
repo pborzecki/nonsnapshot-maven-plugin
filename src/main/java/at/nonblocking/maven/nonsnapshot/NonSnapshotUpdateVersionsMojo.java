@@ -195,7 +195,6 @@ public class NonSnapshotUpdateVersionsMojo extends NonSnapshotBaseMojo {
       ProcessedUpstreamDependency upstreamDependency = getUpstreamDependencyHandler().findMatch(upstreamArtifact, getProcessedUpstreamDependencies());
       if (upstreamDependency != null) {
         LOG.debug("Upstream dependency found: {}:{}", upstreamArtifact.getGroupId(), upstreamArtifact.getArtifactId());
-
         try {
           String latestVersion = getUpstreamDependencyHandler().resolveLatestVersion(upstreamArtifact, upstreamDependency, getRepositorySystem(), getRepositorySystemSession(), getRemoteRepositories());
           if (latestVersion != null) {

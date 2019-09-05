@@ -12,12 +12,12 @@ import static org.junit.Assert.assertThat;
  * @author Yablokov Aleksey
  */
 public class VersionFormatterTest {
-    private static final VersionParser.Version noBranch = new VersionParser.Version(1, 2, 3, null, null, false);
-    private static final VersionParser.Version noBranchSnapshot = new VersionParser.Version(1, 2, 3, null, null, true);
-    private static final VersionParser.Version easyBranch = new VersionParser.Version(1, 2, 3, "master", 4, false);
-    private static final VersionParser.Version easyBranchSnapshot = new VersionParser.Version(1, 2, 3, "master", null, true);
-    private static final VersionParser.Version hardBranch = new VersionParser.Version(1, 2, 3, "pks-1234-bnu-integration-5", 4, false);
-    private static final VersionParser.Version hardBranchSnapshot = new VersionParser.Version(1, 2, 3, "pks-1234-bnu-integration-5", null, true);
+    private static final Version noBranch = new Version(1, 2, 3, null, null, false);
+    private static final Version noBranchSnapshot = new Version(1, 2, 3, null, null, true);
+    private static final Version easyBranch = new Version(1, 2, 3, "master", 4, false);
+    private static final Version easyBranchSnapshot = new Version(1, 2, 3, "master", null, true);
+    private static final Version hardBranch = new Version(1, 2, 3, "pks-1234-bnu-integration-5", 4, false);
+    private static final Version hardBranchSnapshot = new Version(1, 2, 3, "pks-1234-bnu-integration-5", null, true);
 
     @Test
     public void withBranch() {

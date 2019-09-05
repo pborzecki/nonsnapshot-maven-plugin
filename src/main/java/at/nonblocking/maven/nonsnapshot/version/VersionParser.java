@@ -7,98 +7,78 @@ import java.util.regex.Pattern;
  * Parse version of a module.
  *
  * @author Yablokov Aleksey
+ * @modified Piotr Borzęcki
  */
-class VersionParser {
+public class VersionParser {
+    private final String SNAPSHOT = "SNAPSHOT";
     private final Pattern pattern;
 
-    VersionParser(String incrementVersionPattern) {
+    public VersionParser(String incrementVersionPattern) {
         pattern = Pattern.compile(incrementVersionPattern);
     }
 
-    Version parse(String version) {
-        final String SNAPSHOT = "SNAPSHOT";
+    public Version parse(String version) {
+        if(version == null)
+            version = "";
 
         Matcher m = pattern.matcher(version);
         if (m.find()) {
-            String buildNumber = m.group(6);
+            if (version.isEmpty() || m.groupCount() == 9 && m.group(9) != null && m.group(9).equals("LATEST"))
+                return new Version(null, null, null, null, null, false);
+
+
+            Integer majorVersion = null;
+            Integer middleVersion = null;
+            Integer minorVersion = null;
+            String[] versionParts = m.group(1).split("\\.");
+            if (versionParts.length < 1)
+                throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version + " (major version missing)");
+
+            if (versionParts.length > 3)
+                throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version + " (too many version elements)");
+
+            try {
+                majorVersion = Integer.parseInt(versionParts[0]);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version + " (major version parse error: " + e.getMessage() + ")");
+            }
+
+            if (versionParts.length >= 2)
+            {
+                try {
+                    middleVersion = Integer.parseInt(versionParts[1]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version + " (middle version parse error: " + e.getMessage() + ")");
+                }
+            }
+
+            if (versionParts.length >= 3)
+            {
+                try {
+                    minorVersion = Integer.parseInt(versionParts[2]);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version + " (minor version parse error: " + e.getMessage() + ")");
+                }
+            }
+
+            String branchName =  m.group(6);
             Integer buildVersion = null;
             boolean isItSnapshot = false;
-
-            if(m.group(7) != null) {
-                if(m.group(7).equals(SNAPSHOT))
+            String snapshotOrBuild = m.group(7);
+            if(snapshotOrBuild != null) {
+                if (snapshotOrBuild.equals(SNAPSHOT))
                     isItSnapshot = true;
                 else
-                    throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version);
+                    buildVersion = Integer.parseInt(snapshotOrBuild);
             }
 
-            if(buildNumber != null) {
-                if(buildNumber.equals(SNAPSHOT))
-                    isItSnapshot = true;
-                else
-                    buildVersion = Integer.parseInt(buildNumber);
-            } else if(!isItSnapshot && m.group(5) != null)
-                buildVersion = 1;
+            String snapshot = m.group(8);
+            if(snapshot != null && snapshot.equals(SNAPSHOT))
+                isItSnapshot = true;
 
-            return new Version(
-                    Integer.parseInt(m.group(1)),
-                    Integer.parseInt(m.group(2)),
-                    Integer.parseInt(m.group(3)),
-                    m.group(5),
-                    buildVersion,
-                    isItSnapshot
-            );
+            return new Version(majorVersion, middleVersion, minorVersion, branchName, buildVersion, isItSnapshot);
         } else {
             throw new IllegalArgumentException("Can't parse version with '" + pattern + "': " + version);
-        }
-    }
-
-    static class Version {
-        private final int majorVersion;
-        private final int middleVersion;
-        private final int minorVersion;
-        private final String branchSuffix;
-        private final Integer buildVersion;
-        private final boolean isItSnapshot;
-
-        Version(int majorVersion, int middleVersion, int minorVersion, String branchSuffix, Integer buildVersion, boolean isItSnapshot) {
-            this.majorVersion = majorVersion;
-            this.middleVersion = middleVersion;
-            this.minorVersion = minorVersion;
-            this.branchSuffix = branchSuffix;
-            this.buildVersion = buildVersion;
-            this.isItSnapshot = isItSnapshot;
-
-            if (branchSuffix != null && branchSuffix.isEmpty()) {
-                throw new IllegalArgumentException("Branch suffix is an empty string");
-            }
-            if (branchSuffix != null && buildVersion == null && !isItSnapshot) {
-                throw new IllegalArgumentException("Branch suffix is not null, but it is not SNAPSHOT and build version is null");
-            }
-            if (branchSuffix == null && buildVersion != null) {
-                throw new IllegalArgumentException("Build version is not null, but branch suffix is null");
-            }
-        }
-
-        public int getMajorVersion() {
-            return majorVersion;
-        }
-
-        public int getMiddleVersion() {
-            return middleVersion;
-        }
-
-        public int getMinorVersion() {
-            return minorVersion;
-        }
-
-        public String getBranchSuffix() {
-            return branchSuffix;
-        }
-
-        public Integer getBuildVersion() { return buildVersion; }
-
-        public boolean getIsItSnapshot() {
-            return isItSnapshot;
         }
     }
 

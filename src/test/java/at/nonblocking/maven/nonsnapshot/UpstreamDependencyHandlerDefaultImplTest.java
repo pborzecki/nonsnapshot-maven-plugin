@@ -2,12 +2,12 @@ package at.nonblocking.maven.nonsnapshot;
 
 import at.nonblocking.maven.nonsnapshot.impl.UpstreamDependencyHandlerDefaultImpl;
 import at.nonblocking.maven.nonsnapshot.model.MavenArtifact;
+import at.nonblocking.maven.nonsnapshot.version.Version;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.VersionRangeRequest;
 import org.eclipse.aether.resolution.VersionRangeResult;
-import org.eclipse.aether.version.Version;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -40,40 +40,40 @@ public class UpstreamDependencyHandlerDefaultImplTest {
 
     assertEquals("at\\.nonblocking", upstreamDependencies.get(0).getGroupPattern().pattern());
     assertEquals("test2", upstreamDependencies.get(0).getArtifactPattern().pattern());
-    assertEquals(new Integer(1), upstreamDependencies.get(0).getVersionMajor());
-    assertEquals(new Integer(2), upstreamDependencies.get(0).getVersionMinor());
-    assertEquals(new Integer(4), upstreamDependencies.get(0).getVersionIncrement());
+    assertEquals(new Integer(1), upstreamDependencies.get(0).getVersion().getMajorVersion());
+    assertEquals(new Integer(2), upstreamDependencies.get(0).getVersion().getMiddleVersion());
+    assertEquals(new Integer(4), upstreamDependencies.get(0).getVersion().getMinorVersion());
 
     assertEquals("at\\.nonblocking", upstreamDependencies.get(1).getGroupPattern().pattern());
     assertEquals("test3", upstreamDependencies.get(1).getArtifactPattern().pattern());
-    assertEquals(new Integer(1), upstreamDependencies.get(1).getVersionMajor());
-    assertEquals(new Integer(5), upstreamDependencies.get(1).getVersionMinor());
-    assertNull(upstreamDependencies.get(1).getVersionIncrement());
+    assertEquals(new Integer(1), upstreamDependencies.get(1).getVersion().getMajorVersion());
+    assertEquals(new Integer(5), upstreamDependencies.get(1).getVersion().getMiddleVersion());
+    assertNull(upstreamDependencies.get(1).getVersion().getMinorVersion());
 
     assertEquals("at\\.nonblocking", upstreamDependencies.get(2).getGroupPattern().pattern());
     assertEquals("test-.*", upstreamDependencies.get(2).getArtifactPattern().pattern());
-    assertNull(upstreamDependencies.get(2).getVersionMajor());
-    assertNull(upstreamDependencies.get(2).getVersionMinor());
-    assertNull(upstreamDependencies.get(2).getVersionIncrement());
+    assertNull(upstreamDependencies.get(2).getVersion().getMajorVersion());
+    assertNull(upstreamDependencies.get(2).getVersion().getMiddleVersion());
+    assertNull(upstreamDependencies.get(2).getVersion().getMinorVersion());
 
     assertEquals("at\\..*", upstreamDependencies.get(3).getGroupPattern().pattern());
     assertEquals("test5", upstreamDependencies.get(3).getArtifactPattern().pattern());
-    assertNull(upstreamDependencies.get(3).getVersionMajor());
-    assertNull(upstreamDependencies.get(3).getVersionMinor());
-    assertNull(upstreamDependencies.get(3).getVersionIncrement());
+    assertNull(upstreamDependencies.get(3).getVersion().getMajorVersion());
+    assertNull(upstreamDependencies.get(3).getVersion().getMiddleVersion());
+    assertNull(upstreamDependencies.get(3).getVersion().getMinorVersion());
 
     assertEquals("at\\..*", upstreamDependencies.get(4).getGroupPattern().pattern());
     assertEquals(".*", upstreamDependencies.get(4).getArtifactPattern().pattern());
-    assertEquals(new Integer(1), upstreamDependencies.get(4).getVersionMajor());
-    assertNull(upstreamDependencies.get(4).getVersionMinor());
-    assertNull(upstreamDependencies.get(4).getVersionIncrement());
+    assertEquals(new Integer(1), upstreamDependencies.get(4).getVersion().getMajorVersion());
+    assertNull(upstreamDependencies.get(4).getVersion().getMiddleVersion());
+    assertNull(upstreamDependencies.get(4).getVersion().getMinorVersion());
   }
 
   @Test
   public void testMatches() {
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), null, null, null);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(null, null, null));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     List<ProcessedUpstreamDependency> upstreamDependencies = Arrays.asList(dep1, dep2);
 
@@ -90,7 +90,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     RepositorySystemSession mockRepositorySystemSession = mock(RepositorySystemSession.class);
     List<RemoteRepository> mockRemoteRepositories = new ArrayList<>();
 
-    Version mockVersion1 = mock(Version.class);
+    org.eclipse.aether.version.Version mockVersion1 = mock(org.eclipse.aether.version.Version.class);
     when(mockVersion1.toString()).thenReturn("1.1.1-1234");
 
     VersionRangeResult result = new VersionRangeResult(new VersionRangeRequest());
@@ -99,8 +99,8 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     ArgumentCaptor<VersionRangeRequest> captor = ArgumentCaptor.forClass(VersionRangeRequest.class);
     when(mockRepositorySystem.resolveVersionRange(any(RepositorySystemSession.class), captor.capture())).thenReturn(result);
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), null, null, null);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(null, null, null));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
@@ -119,7 +119,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     RepositorySystemSession mockRepositorySystemSession = mock(RepositorySystemSession.class);
     List<RemoteRepository> mockRemoteRepositories = new ArrayList<>();
 
-    Version mockVersion1 = mock(Version.class);
+    org.eclipse.aether.version.Version mockVersion1 = mock(org.eclipse.aether.version.Version.class);
     when(mockVersion1.toString()).thenReturn("2.1.1-1234");
 
     VersionRangeResult result = new VersionRangeResult(new VersionRangeRequest());
@@ -128,8 +128,8 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     ArgumentCaptor<VersionRangeRequest> captor = ArgumentCaptor.forClass(VersionRangeRequest.class);
     when(mockRepositorySystem.resolveVersionRange(any(RepositorySystemSession.class), captor.capture())).thenReturn(result);
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), 2, null, null);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(2, null, null));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
@@ -148,7 +148,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     RepositorySystemSession mockRepositorySystemSession = mock(RepositorySystemSession.class);
     List<RemoteRepository> mockRemoteRepositories = new ArrayList<>();
 
-    Version mockVersion1 = mock(Version.class);
+    org.eclipse.aether.version.Version mockVersion1 = mock(org.eclipse.aether.version.Version.class);
     when(mockVersion1.toString()).thenReturn("1.1.1-1234");
 
     VersionRangeResult result = new VersionRangeResult(new VersionRangeRequest());
@@ -157,8 +157,8 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     ArgumentCaptor<VersionRangeRequest> captor = ArgumentCaptor.forClass(VersionRangeRequest.class);
     when(mockRepositorySystem.resolveVersionRange(any(RepositorySystemSession.class), captor.capture())).thenReturn(result);
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), 2, null, null);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(2, null, null));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
@@ -176,7 +176,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     RepositorySystemSession mockRepositorySystemSession = mock(RepositorySystemSession.class);
     List<RemoteRepository> mockRemoteRepositories = new ArrayList<>();
 
-    Version mockVersion1 = mock(Version.class);
+    org.eclipse.aether.version.Version mockVersion1 = mock(org.eclipse.aether.version.Version.class);
     when(mockVersion1.toString()).thenReturn("2.3.9-1234");
 
     VersionRangeResult result = new VersionRangeResult(new VersionRangeRequest());
@@ -185,8 +185,8 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     ArgumentCaptor<VersionRangeRequest> captor = ArgumentCaptor.forClass(VersionRangeRequest.class);
     when(mockRepositorySystem.resolveVersionRange(any(RepositorySystemSession.class), captor.capture())).thenReturn(result);
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), 2, 3, null);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(2, 3, null));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
@@ -205,7 +205,7 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     RepositorySystemSession mockRepositorySystemSession = mock(RepositorySystemSession.class);
     List<RemoteRepository> mockRemoteRepositories = new ArrayList<>();
 
-    Version mockVersion1 = mock(Version.class);
+    org.eclipse.aether.version.Version mockVersion1 = mock(org.eclipse.aether.version.Version.class);
     when(mockVersion1.toString()).thenReturn("2.3.4-1234");
 
     VersionRangeResult result = new VersionRangeResult(new VersionRangeRequest());
@@ -214,8 +214,8 @@ public class UpstreamDependencyHandlerDefaultImplTest {
     ArgumentCaptor<VersionRangeRequest> captor = ArgumentCaptor.forClass(VersionRangeRequest.class);
     when(mockRepositorySystem.resolveVersionRange(any(RepositorySystemSession.class), captor.capture())).thenReturn(result);
 
-    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), 2, 3, 4);
-    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), null, null, null);
+    ProcessedUpstreamDependency dep1 = new ProcessedUpstreamDependency(Pattern.compile("at\\.nonblocking"), Pattern.compile("test1"), new Version(2, 3, 4));
+    ProcessedUpstreamDependency dep2 = new ProcessedUpstreamDependency(Pattern.compile("at\\..*"), Pattern.compile(".*"), new Version(null, null, null));
 
     UpstreamDependencyHandler handler = new UpstreamDependencyHandlerDefaultImpl();
 
