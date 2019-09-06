@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ru.yaal.maven</groupId>
+	<groupId>com.novomatic.novoprime.3rdparty</groupId>
 	<artifactId>nonsnapshot-maven-plugin</artifactId>
-	<version>4.0</version>
+	<version>4.0.0</version>
 	<packaging>maven-plugin</packaging>
 	<name>Maven Nonsnapshot Plugin</name>
 
@@ -108,34 +108,18 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-		        <groupId>org.codehaus.plexus</groupId>
-		        <artifactId>plexus-component-metadata</artifactId>
-		        <version>1.6</version>
-		        <executions>
-		          <execution>
-		            <id>process-classes</id>
-		            <goals>
-		              <goal>generate-metadata</goal>
-		            </goals>
-		          </execution>
-		          <execution>
-		            <id>process-test-classes</id>
-		            <goals>
-		              <goal>generate-test-metadata</goal>
-		            </goals>
-		          </execution>
-		        </executions>
-		      </plugin>
 		</plugins>
 	</build>
 
-	<!-- todo set distributionManagement in settings.xml-->
 	<distributionManagement>
-		<repository>
-			<id>nexus-thirdparty</id>
-			<url>http://nexus.trs/nexus/content/repositories/thirdparty/</url>
-		</repository>
-	</distributionManagement>
+        <repository>
+            <id>releases-repository-id</id>
+            <url>${releases-repository-address}/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots-repository-id</id>
+            <url>${snapshots-repository-address}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>

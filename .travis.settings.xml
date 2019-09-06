@@ -1,0 +1,29 @@
+<settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/SETTINGS/1.0.0" xsi:schemalocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+        <server>
+            <id>releases-repository-id</id>
+            <username>${env.RELEASES_REPOSITORY_USERNAME}</username>
+            <password>${env.RELEASES_REPOSITORY_PASSWORD}</password>
+        </server>
+        <server>
+            <id>snapshots-repository-id</id>
+            <username>${env.SNAPSHOTS_REPOSITORY_USERNAME}</username>
+            <password>${env.SNAPSHOTS_REPOSITORY_PASSWORD}</password>
+        </server>
+    </servers>
+
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <properties>
+                <nonsnapshot-maven-plugin-releases-repository-address>${env.RELEASES_REPOSITORY_ADDRESS}</nonsnapshot-maven-plugin-releases-repository-address>
+                <nonsnapshot-maven-plugin-snapshots-repository-address>${env.SNAPSHOTS_REPOSITORY_ADDRESS}</nonsnapshot-maven-plugin-snapshots-repository-address>
+            </properties>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>deploy</activeProfile>
+    </activeProfiles>
+</settings>
