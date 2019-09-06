@@ -17,8 +17,8 @@
         <profile>
             <id>deploy</id>
             <properties>
-                <nonsnapshot-maven-plugin-releases-repository-address>${env.RELEASES_REPOSITORY_ADDRESS}</nonsnapshot-maven-plugin-releases-repository-address>
-                <nonsnapshot-maven-plugin-snapshots-repository-address>${env.SNAPSHOTS_REPOSITORY_ADDRESS}</nonsnapshot-maven-plugin-snapshots-repository-address>
+                <releases-repository-address>${env.RELEASES_REPOSITORY_ADDRESS}</releases-repository-address>
+                <snapshots-repository-address>${env.SNAPSHOTS_REPOSITORY_ADDRESS}</snapshots-repository-address>
             </properties>
         </profile>
     </profiles>
